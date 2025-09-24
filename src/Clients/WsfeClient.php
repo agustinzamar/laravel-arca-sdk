@@ -2,9 +2,14 @@
 
 namespace AgustinZamar\LaravelArcaSdk\Clients;
 
+use AgustinZamar\LaravelArcaSdk\Domain\Identification;
+use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
 use AgustinZamar\LaravelArcaSdk\Domain\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
+use AgustinZamar\LaravelArcaSdk\Enums\IdentificationType;
+use AgustinZamar\LaravelArcaSdk\Enums\InvoiceConcept;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
 use SoapClient;
@@ -91,7 +96,7 @@ class WsfeClient
             ));
     }
 
-    public function generateInvoice(array $params): stdClass
+    public function generateInvoice(array $params): Invoice
     {
         $params = array_merge(['Auth' => $this->getAuthParams()], $params);
 
@@ -101,7 +106,20 @@ class WsfeClient
             throw new \Exception('Error creating invoice: ' . json_encode($response->FECAESolicitarResult->Errors));
         }
 
-        return $response->FECAESolicitarResult->FeDetResp->FECAEDetResponse;
+        $invoiceData = $response->FECAESolicitarResult->FeDetResp->FECAEDetResponse;
+
+        return new Invoice(
+            concept: InvoiceConcept::from($invoiceData->Concepto),
+            identification: new Identification(
+                type: IdentificationType::from($invoiceData->DocTipo),
+                number: $invoiceData->DocNro,
+            ),
+            invoiceFrom: $invoiceData->CbteDesde,
+            invoiceTo: $invoiceData->CbteHasta,
+            invoiceDate: Carbon::createFromFormat('Ymd', $invoiceData->CbteFch),
+            cae: $invoiceData->CAE,
+            caeExpirationDate: Carbon::createFromFormat('Ymd', $invoiceData->CAEFchVto)
+        );
     }
 
 

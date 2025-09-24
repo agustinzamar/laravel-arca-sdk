@@ -5,6 +5,7 @@ namespace AgustinZamar\LaravelArcaSdk;
 use AgustinZamar\LaravelArcaSdk\Clients\WsaaClient;
 use AgustinZamar\LaravelArcaSdk\Clients\WsfeClient;
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
+use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
 use AgustinZamar\LaravelArcaSdk\Domain\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\Currency;
@@ -58,7 +59,7 @@ class ArcaService
         return $this->wsfe->getInvoiceTypes();
     }
 
-    public function generateInvoice(array $params): stdClass
+    public function generateInvoice(array $params): Invoice
     {
         return $this->wsfe->generateInvoice($params);
     }
