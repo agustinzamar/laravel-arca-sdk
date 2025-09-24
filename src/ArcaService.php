@@ -6,9 +6,8 @@ use AgustinZamar\LaravelArcaSdk\Clients\WsaaClient;
 use AgustinZamar\LaravelArcaSdk\Clients\WsfeClient;
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
 use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
-use AgustinZamar\LaravelArcaSdk\Domain\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
-use AgustinZamar\LaravelArcaSdk\Enums\Currency;
+use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use Exception;
 use Illuminate\Support\Collection;
@@ -36,6 +35,17 @@ class ArcaService
         return $this->wsaa->getAuthorizationTicket($service);
     }
 
+    /**
+     * Obtain all the points of sale which are enabled for Web Services usage
+     *
+     * @return stdClass
+     * @throws Exception
+     */
+    public function getPointsOfSale(): stdClass
+    {
+        return $this->wsfe->getPointsOfSale();
+    }
+
 
     /**
      * Obtain all the recipient VAT conditions
@@ -49,18 +59,27 @@ class ArcaService
     }
 
     /**
-     * Obtain all the invoice types
+     * Generate an invoice with the provided parameters
      *
-     * @return Collection<InvoiceType>
+     * @param array $params
+     * @return Invoice
      * @throws Exception
      */
-    public function getInvoiceTypes(): Collection
-    {
-        return $this->wsfe->getInvoiceTypes();
-    }
-
     public function generateInvoice(array $params): Invoice
     {
         return $this->wsfe->generateInvoice($params);
+    }
+
+    /**
+     * Obtain the last invoice number for the specified point of sale and invoice type
+     *
+     * @param int $pointOfSale
+     * @param InvoiceType|int $invoiceType
+     * @return int
+     * @throws Exception
+     */
+    public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int
+    {
+        return $this->wsfe->getLastInvoiceNumber($pointOfSale, $invoiceType);
     }
 }

@@ -4,13 +4,12 @@ namespace AgustinZamar\LaravelArcaSdk\Clients;
 
 use AgustinZamar\LaravelArcaSdk\Domain\Identification;
 use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
-use AgustinZamar\LaravelArcaSdk\Domain\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\IdentificationType;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceConcept;
+use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Collection;
 use SoapClient;
 use stdClass;
@@ -60,7 +59,7 @@ class WsfeClient
      * @return stdClass
      * @throws \Exception
      */
-    public function getWebServicesPointOfSale(): stdClass
+    public function getPointsOfSale(): stdClass
     {
         $response = $this->client->FEParamGetPtosVenta([
             'Auth' => $this->getAuthParams(),
@@ -73,31 +72,28 @@ class WsfeClient
         return $response->FEParamGetPtosVentaResult->ResultGet;
     }
 
-    /**
-     * Obtain all the Invoice Types
-     *
-     * @return Collection<InvoiceType>
-     * @throws Exception
-     */
-    public function getInvoiceTypes(): Collection
+    public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int
     {
-        $response = $this->client->FEParamGetTiposCbte([
+        $invoiceType = $invoiceType instanceof InvoiceType ? $invoiceType->value : $invoiceType;
+
+        $response = $this->client->FECompUltimoAutorizado([
             'Auth' => $this->getAuthParams(),
+            'PtoVta' => $pointOfSale,
+            'CbteTipo' => $invoiceType,
         ]);
 
-        if (isset($response->FEParamGetTiposCbteResult->Errors) && !empty($response->FEParamGetTiposCbteResult->Errors)) {
-            throw new \Exception('Error fetching identification types: ' . json_encode($response->FEParamGetTiposCbteResult->Errors));
+        if (isset($response->FECompUltimoAutorizadoResult->Errors) && !empty($response->FECompUltimoAutorizadoResult->Errors)) {
+            throw new \Exception('Error fetching last invoice number: ' . json_encode($response->FECompUltimoAutorizadoResult->Errors));
         }
 
-        return collect($response->FEParamGetTiposCbteResult->ResultGet->CbteTipo)
-            ->map(fn($type) => new InvoiceType(
-                id: $type->Id,
-                name: $type->Desc,
-            ));
+        return (int)$response->FECompUltimoAutorizadoResult->CbteNro;
     }
 
     public function generateInvoice(array $params): Invoice
     {
+        $lastInvoiceNumber = $this->getLastInvoiceNumber($params['FeCAEReq']['FeCabReq']['PtoVta'], $params['FeCAEReq']['FeCabReq']['CbteTipo']);
+        $params['FeCAEReq']['FeDetReq']['FECAEDetRequest']['CbteDesde'] = $lastInvoiceNumber + 1;
+        $params['FeCAEReq']['FeDetReq']['FECAEDetRequest']['CbteHasta'] = $lastInvoiceNumber + 1;
         $params = array_merge(['Auth' => $this->getAuthParams()], $params);
 
         $response = $this->client->FECAESolicitar($params);
@@ -122,6 +118,8 @@ class WsfeClient
         );
     }
 
+
+    /* ---------- [ Private Methods ] ----------  */
 
     private function getAuthParams(): array
     {
