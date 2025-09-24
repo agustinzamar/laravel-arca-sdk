@@ -61,8 +61,8 @@ php artisan vendor:publish --tag=":package_slug-views"
 ## Usage
 
 ```php
-$variable = new VendorName\Skeleton();
-echo $variable->echoPhrase('Hello, VendorName!');
+$variable = new AgustinZamar\Skeleton();
+echo $variable->echoPhrase('Hello, AgustinZamar!');
 ```
 
 ## Testing
@@ -91,3 +91,10 @@ Please review [our security policy](../../security/policy) on how to report secu
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+## Pasos AFIP
+
+1. Generar solicitud de certificado (CSR):
+   2. Run `openssl genrsa -out arca.key 2048`
+   3. Run `openssl req -new -key arca.key -subj "/C=AR/O=Crystal/CN=Obsidian/serialNumber=CUIT XXXXXXXXXXX" -out arca.csr`
+2. 

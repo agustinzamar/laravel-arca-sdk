@@ -1,5 +1,5 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace AgustinZamar\Skeleton;
 
 class Skeleton {}

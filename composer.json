@@ -1,24 +1,29 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "agustinzamar/laravel-arca-sdk",
+    "description": "A Laravel package for integrating with the Arca (Ex AFIP) Web Services.",
     "keywords": [
-        ":vendor_name",
+        "Agustin Zamar",
         "laravel",
-        ":package_slug"
+        "arca",
+        "sdk",
+        "afip"
     ],
     "homepage": "https://github.com/:vendor_slug/:package_slug",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Agustin Zamar",
+            "email": "agustinzamar33@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.0||^8.1||^8.2||^8.3||^8.4||^8.5",
         "spatie/laravel-package-tools": "^1.16",
-        "illuminate/contracts": "^11.0||^12.0"
+        "illuminate/contracts": "^11.0||^12.0",
+      "ext-simplexml": "*",
+      "ext-soap": "*",
+      "ext-openssl": "*"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -35,13 +40,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "AgustinZamar\\LaravelArcaSdk\\": "src/",
+            "AgustinZamar\\LaravelArcaSdk\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "AgustinZamar\\LaravelArcaSdk\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +68,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "LaravelArcaSdkServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "LaravelArcaSdk": "LaravelArcaSdk"
             }
         }
     },

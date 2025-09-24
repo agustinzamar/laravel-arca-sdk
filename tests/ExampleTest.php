@@ -1,5 +1,9 @@
 <?php
 
+use AgustinZamar\LaravelArcaSdk\Facades\Wsaa;
+
 it('can test', function () {
-    expect(true)->toBeTrue();
+    $tokenData = Wsaa::getToken('wsfe');
+
+    dd($tokenData);
 });

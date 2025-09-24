@@ -1,10 +1,10 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace AgustinZamar\LaravelArcaSdk\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use VendorName\Skeleton\SkeletonServiceProvider;
+use AgustinZamar\LaravelArcaSdk\LaravelArcaSdkServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -12,15 +12,25 @@ class TestCase extends Orchestra
     {
         parent::setUp();
 
+        // Copiar los archivos de keys/cert reales
+        $tbStorageDir = storage_path('app/arca');
+
+        if (!is_dir($tbStorageDir)) {
+            mkdir($tbStorageDir, 0755, true);
+        }
+
+        copy(__DIR__ . '/../storage/app/arca/arca.key', $tbStorageDir . '/arca.key');
+        copy(__DIR__ . '/../storage/app/arca/arca.crt', $tbStorageDir . '/arca.crt');
+
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'VendorName\\Skeleton\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn(string $modelName) => 'AgustinZamar\\LaravelArcaSdk\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            SkeletonServiceProvider::class,
+            LaravelArcaSdkServiceProvider::class,
         ];
     }
 
