@@ -9,6 +9,7 @@ use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
+use AgustinZamar\LaravelArcaSdk\Request\InvoiceParams;
 use Exception;
 use Illuminate\Support\Collection;
 use stdClass;
@@ -65,7 +66,7 @@ class ArcaService
      * @return Invoice
      * @throws Exception
      */
-    public function generateInvoice(array $params): Invoice
+    public function generateInvoice(InvoiceParams $params): Invoice
     {
         return $this->wsfe->generateInvoice($params);
     }

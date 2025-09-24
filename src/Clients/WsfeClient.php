@@ -9,6 +9,7 @@ use AgustinZamar\LaravelArcaSdk\Enums\IdentificationType;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceConcept;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
+use AgustinZamar\LaravelArcaSdk\Request\InvoiceParams;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use SoapClient;
@@ -89,13 +90,13 @@ class WsfeClient
         return (int)$response->FECompUltimoAutorizadoResult->CbteNro;
     }
 
-    public function generateInvoice(array $params): Invoice
+    public function generateInvoice(InvoiceParams $params): Invoice
     {
-        $lastInvoiceNumber = $this->getLastInvoiceNumber($params['FeCAEReq']['FeCabReq']['PtoVta'], $params['FeCAEReq']['FeCabReq']['CbteTipo']);
-        $params['FeCAEReq']['FeDetReq']['FECAEDetRequest']['CbteDesde'] = $lastInvoiceNumber + 1;
-        $params['FeCAEReq']['FeDetReq']['FECAEDetRequest']['CbteHasta'] = $lastInvoiceNumber + 1;
-        $params = array_merge(['Auth' => $this->getAuthParams()], $params);
+        $lastInvoiceNumber = $this->getLastInvoiceNumber($params->getPointOfSale(), $params->getInvoiceType());
+        $params->setInvoiceFrom($lastInvoiceNumber + 1);
+        $params->setInvoiceTo($lastInvoiceNumber + 1);
 
+        $params = array_merge(['Auth' => $this->getAuthParams()], $params->toArray());
         $response = $this->client->FECAESolicitar($params);
 
         if (isset($response->FECAESolicitarResult->Errors) && !empty($response->FECAESolicitarResult->Errors)) {
