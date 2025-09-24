@@ -4,7 +4,6 @@ namespace AgustinZamar\LaravelArcaSdk;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use AgustinZamar\Skeleton\Commands\SkeletonCommand;
 
 class LaravelArcaSdkServiceProvider extends PackageServiceProvider
 {

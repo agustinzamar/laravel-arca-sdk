@@ -1,11 +1,13 @@
 <?php
 
-namespace AgustinZamar\LaravelArcaSdk;
+namespace AgustinZamar\LaravelArcaSdk\Clients;
 
-use SimpleXMLElement;
-use SoapClient;
+use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
+use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use SimpleXMLElement;
+use SoapClient;
 
 class WsaaClient
 {
@@ -13,9 +15,12 @@ class WsaaClient
     const TRA_FILE = 'app/arca/TRA.xml';
     const TRA_TEMP_FILE = 'app/arca/TRA.tmp';
 
-    public function getToken(string $service): array
+    public function getAuthorizationTicket(WebService|string $service): AuthorizationTicket
     {
-        return Cache::remember($this->cacheKey(), $this->ttl(), function () use ($service) {
+        $service = $service instanceof WebService ? $service->value : $service;
+        $cacheKey = $this->cacheKey() . '-' . $service;
+
+        return Cache::remember($cacheKey, $this->ttl(), function () use ($service) {
             $cms = $this->signTra($this->createTra($service));
             $taXml = $this->callWsaa($cms);
 
@@ -23,16 +28,18 @@ class WsaaClient
 
             $ta = new SimpleXMLElement($taXml);
 
-            return [
-                'token' => (string)$ta->credentials->token,
-                'sign' => (string)$ta->credentials->sign,
-                'expiration' => (string)$ta->header->expirationTime,
-            ];
+            return new AuthorizationTicket(
+                (string)$ta->credentials->token,
+                (string)$ta->credentials->sign,
+                (string)$ta->header->expirationTime,
+            );
         });
     }
 
-    protected function createTra(string $service): string
+    protected function createTra(WebService|string $service): string
     {
+        $service = $service instanceof WebService ? $service->value : $service;
+
         $xml = new SimpleXMLElement('<loginTicketRequest version="1.0"/>');
         $header = $xml->addChild('header');
         $header->addChild('uniqueId', time());
@@ -86,9 +93,8 @@ class WsaaClient
 
     protected function callWsaa(string $cms): string
     {
-        $client = new SoapClient('wsaa.wsdl', [
+        $client = new SoapClient(config('laravel-arca-sdk.wsaa_wsdl_url'), [
             'soap_version' => SOAP_1_2,
-            'location' => config('laravel-arca-sdk.wsaa_wsdl_url'),
             'trace' => 1,
             'exceptions' => true,
         ]);

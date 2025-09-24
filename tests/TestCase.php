@@ -11,17 +11,7 @@ class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Copiar los archivos de keys/cert reales
-        $tbStorageDir = storage_path('app/arca');
-
-        if (!is_dir($tbStorageDir)) {
-            mkdir($tbStorageDir, 0755, true);
-        }
-
-        copy(__DIR__ . '/../storage/app/arca/arca.key', $tbStorageDir . '/arca.key');
-        copy(__DIR__ . '/../storage/app/arca/arca.crt', $tbStorageDir . '/arca.crt');
-
+        
         Factory::guessFactoryNamesUsing(
             fn(string $modelName) => 'AgustinZamar\\LaravelArcaSdk\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );

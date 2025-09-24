@@ -30,8 +30,3 @@ phpstan.neon
 testbench.yaml
 /docs
 /coverage
-
-# Others
-arca.key
-arca.csr
-arca.crt
