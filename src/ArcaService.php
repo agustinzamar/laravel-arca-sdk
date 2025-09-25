@@ -17,19 +17,17 @@ use stdClass;
 class ArcaService
 {
     protected WsaaClient $wsaa;
+
     protected WsfeClient $wsfe;
 
     public function __construct()
     {
-        $this->wsaa = new WsaaClient();
+        $this->wsaa = new WsaaClient;
         $this->wsfe = new WsfeClient($this->wsaa);
     }
 
     /**
      * Obtain an authorization ticket for the specified web service.
-     *
-     * @param WebService|string $service
-     * @return AuthorizationTicket
      */
     public function getAuthorizationTicket(WebService|string $service): AuthorizationTicket
     {
@@ -39,7 +37,6 @@ class ArcaService
     /**
      * Obtain all the points of sale which are enabled for Web Services usage
      *
-     * @return stdClass
      * @throws Exception
      */
     public function getPointsOfSale(): stdClass
@@ -47,11 +44,11 @@ class ArcaService
         return $this->wsfe->getPointsOfSale();
     }
 
-
     /**
      * Obtain all the recipient VAT conditions
      *
      * @return Collection<VatCondition>
+     *
      * @throws Exception
      */
     public function getRecipientVatConditions(): Collection
@@ -62,8 +59,8 @@ class ArcaService
     /**
      * Generate an invoice with the provided parameters
      *
-     * @param array $params
-     * @return Invoice
+     * @param  array  $params
+     *
      * @throws Exception
      */
     public function generateInvoice(InvoiceParams $params): Invoice
@@ -74,9 +71,6 @@ class ArcaService
     /**
      * Obtain the last invoice number for the specified point of sale and invoice type
      *
-     * @param int $pointOfSale
-     * @param InvoiceType|int $invoiceType
-     * @return int
      * @throws Exception
      */
     public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int
@@ -87,8 +81,6 @@ class ArcaService
     /**
      * Generate the next invoice based on the provided parameters
      *
-     * @param InvoiceParams $params
-     * @return Invoice
      * @throws Exception
      */
     public function generateNextInvoice(InvoiceParams $params): Invoice

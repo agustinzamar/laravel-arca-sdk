@@ -2,18 +2,18 @@
 
 namespace AgustinZamar\LaravelArcaSdk\Tests;
 
+use AgustinZamar\LaravelArcaSdk\LaravelArcaSdkServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use AgustinZamar\LaravelArcaSdk\LaravelArcaSdkServiceProvider;
 
 class TestCase extends Orchestra
 {
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         Factory::guessFactoryNamesUsing(
-            fn(string $modelName) => 'AgustinZamar\\LaravelArcaSdk\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+            fn (string $modelName) => 'AgustinZamar\\LaravelArcaSdk\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 

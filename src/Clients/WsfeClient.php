@@ -2,6 +2,8 @@
 
 namespace AgustinZamar\LaravelArcaSdk\Clients;
 
+use const SOAP_1_2;
+
 use AgustinZamar\LaravelArcaSdk\Domain\Identification;
 use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
@@ -15,11 +17,11 @@ use Exception;
 use Illuminate\Support\Collection;
 use SoapClient;
 use stdClass;
-use const SOAP_1_2;
 
 class WsfeClient
 {
     protected WsaaClient $wsaaClient;
+
     protected SoapClient $client;
 
     public function __construct(WsaaClient $wsaaClient, array $options = [])
@@ -44,12 +46,12 @@ class WsfeClient
             'Auth' => $this->getAuthParams(),
         ]);
 
-        if (isset($response->FEParamGetCondicionIvaReceptorResult->Errors) && !empty($response->FEParamGetCondicionIvaReceptorResult->Errors)) {
-            throw new Exception('Error fetching identification types: ' . json_encode($response->FEParamGetCondicionIvaReceptorResult->Errors));
+        if (isset($response->FEParamGetCondicionIvaReceptorResult->Errors) && ! empty($response->FEParamGetCondicionIvaReceptorResult->Errors)) {
+            throw new Exception('Error fetching identification types: '.json_encode($response->FEParamGetCondicionIvaReceptorResult->Errors));
         }
 
         return collect($response->FEParamGetCondicionIvaReceptorResult->ResultGet->CondicionIvaReceptor)
-            ->map(fn($vatCondition) => new VatCondition(
+            ->map(fn ($vatCondition) => new VatCondition(
                 id: $vatCondition->Id,
                 name: $vatCondition->Desc,
             ));
@@ -58,7 +60,6 @@ class WsfeClient
     /**
      * Collection of all the points of sale which are enabled for Web Services usage
      *
-     * @return stdClass
      * @throws Exception
      */
     public function getPointsOfSale(): stdClass
@@ -67,8 +68,8 @@ class WsfeClient
             'Auth' => $this->getAuthParams(),
         ]);
 
-        if ($response->FEParamGetPtosVentaResult->Errors && !empty($response->FEParamGetPtosVentaResult->Errors)) {
-            throw new Exception('Error fetching points of sale: ' . json_encode($response->FEParamGetPtosVentaResult->Errors));
+        if ($response->FEParamGetPtosVentaResult->Errors && ! empty($response->FEParamGetPtosVentaResult->Errors)) {
+            throw new Exception('Error fetching points of sale: '.json_encode($response->FEParamGetPtosVentaResult->Errors));
         }
 
         return $response->FEParamGetPtosVentaResult->ResultGet;
@@ -84,18 +85,16 @@ class WsfeClient
             'CbteTipo' => $invoiceType,
         ]);
 
-        if (isset($response->FECompUltimoAutorizadoResult->Errors) && !empty($response->FECompUltimoAutorizadoResult->Errors)) {
-            throw new Exception('Error fetching last invoice number: ' . json_encode($response->FECompUltimoAutorizadoResult->Errors));
+        if (isset($response->FECompUltimoAutorizadoResult->Errors) && ! empty($response->FECompUltimoAutorizadoResult->Errors)) {
+            throw new Exception('Error fetching last invoice number: '.json_encode($response->FECompUltimoAutorizadoResult->Errors));
         }
 
-        return (int)$response->FECompUltimoAutorizadoResult->CbteNro;
+        return (int) $response->FECompUltimoAutorizadoResult->CbteNro;
     }
 
     /**
      * Create an invoice with the given parameters
      *
-     * @param InvoiceParams $params
-     * @return Invoice
      * @throws Exception
      */
     public function generateInvoice(InvoiceParams $params): Invoice
@@ -103,8 +102,8 @@ class WsfeClient
         $params = array_merge(['Auth' => $this->getAuthParams()], $params->toArray());
         $response = $this->client->FECAESolicitar($params);
 
-        if (isset($response->FECAESolicitarResult->Errors) && !empty($response->FECAESolicitarResult->Errors)) {
-            throw new Exception('Error creating invoice: ' . json_encode($response->FECAESolicitarResult->Errors));
+        if (isset($response->FECAESolicitarResult->Errors) && ! empty($response->FECAESolicitarResult->Errors)) {
+            throw new Exception('Error creating invoice: '.json_encode($response->FECAESolicitarResult->Errors));
         }
 
         $invoiceData = $response->FECAESolicitarResult->FeDetResp->FECAEDetResponse;
@@ -126,8 +125,6 @@ class WsfeClient
     /**
      * Generate the next invoice
      *
-     * @param InvoiceParams $params
-     * @return Invoice
      * @throws Exception
      */
     public function generateNextInvoice(InvoiceParams $params): Invoice
@@ -139,8 +136,7 @@ class WsfeClient
         return $this->generateInvoice($params);
     }
 
-
-    /* ---------- [ Private Methods ] ----------  */
+    /* ---------- [ Private Methods ] ---------- */
 
     private function getAuthParams(): array
     {

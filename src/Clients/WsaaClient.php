@@ -12,13 +12,15 @@ use SoapClient;
 class WsaaClient
 {
     const TA_FILE = 'app/arca/TA.xml';
+
     const TRA_FILE = 'app/arca/TRA.xml';
+
     const TRA_TEMP_FILE = 'app/arca/TRA.tmp';
 
     public function getAuthorizationTicket(WebService|string $service): AuthorizationTicket
     {
         $service = $service instanceof WebService ? $service->value : $service;
-        $cacheKey = $this->cacheKey() . '-' . $service;
+        $cacheKey = $this->cacheKey().'-'.$service;
 
         return Cache::remember($cacheKey, $this->ttl(), function () use ($service) {
             $cms = $this->signTra($this->createTra($service));
@@ -29,9 +31,9 @@ class WsaaClient
             $ta = new SimpleXMLElement($taXml);
 
             return new AuthorizationTicket(
-                (string)$ta->credentials->token,
-                (string)$ta->credentials->sign,
-                (string)$ta->header->expirationTime,
+                (string) $ta->credentials->token,
+                (string) $ta->credentials->sign,
+                (string) $ta->header->expirationTime,
             );
         });
     }
@@ -51,7 +53,7 @@ class WsaaClient
         $path = storage_path(self::TRA_FILE);
         $dir = dirname($path);
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true); // true = crea recursivamente
         }
 
@@ -66,20 +68,20 @@ class WsaaClient
         $status = openssl_pkcs7_sign(
             $traPath,
             $tmpPath,
-            'file://' . config('laravel-arca-sdk.public_cert'),
-            ['file://' . config('laravel-arca-sdk.private_key'), config('laravel-arca-sdk.passphrase')],
+            'file://'.config('laravel-arca-sdk.public_cert'),
+            ['file://'.config('laravel-arca-sdk.private_key'), config('laravel-arca-sdk.passphrase')],
             [],
-            !PKCS7_DETACHED
+            ! PKCS7_DETACHED
         );
 
-        if (!$status) {
+        if (! $status) {
             throw new \Exception('Error signing TRA');
         }
 
         $cms = '';
         $fh = fopen($tmpPath, 'r');
         $i = 0;
-        while (!feof($fh)) {
+        while (! feof($fh)) {
             $line = fgets($fh);
             if ($i++ >= 4) {
                 $cms .= $line;

@@ -14,20 +14,35 @@ use Illuminate\Support\Collection;
 class InvoiceParams
 {
     private InvoiceConcept $concept;
+
     private int $pointOfSale;
+
     private Identification $identification;
+
     private InvoiceType $invoiceType;
+
     private int $invoiceFrom;
+
     private int $invoiceTo;
+
     private Carbon $invoiceDate;
+
     private float $total;
+
     private float $net;
+
     private float $exempt = 0;
+
     private ?Carbon $serviceFrom = null;
+
     private ?Carbon $serviceTo = null;
+
     private ?Carbon $dueDate = null;
+
     private Currency $currency = Currency::ARS;
+
     private float $currencyQuote = 1;
+
     private int $vatCondition;
 
     /** @var Collection<Tax> */
@@ -43,40 +58,46 @@ class InvoiceParams
         $this->invoiceDate = now();
     }
 
-    /* ---------- [ Setters ] ----------  */
+    /* ---------- [ Setters ] ---------- */
     public function setConcept(InvoiceConcept $concept): self
     {
         $this->concept = $concept;
+
         return $this;
     }
 
     public function setPointOfSale(int $pointOfSale): self
     {
         $this->pointOfSale = $pointOfSale;
+
         return $this;
     }
 
     public function setIdentification(Identification $identification): self
     {
         $this->identification = $identification;
+
         return $this;
     }
 
     public function setInvoiceType(InvoiceType $invoiceType): self
     {
         $this->invoiceType = $invoiceType;
+
         return $this;
     }
 
     public function setInvoiceFrom(int $invoiceFrom): self
     {
         $this->invoiceFrom = $invoiceFrom;
+
         return $this;
     }
 
     public function setInvoiceTo(int $invoiceTo): self
     {
         $this->invoiceTo = $invoiceTo;
+
         return $this;
     }
 
@@ -84,48 +105,56 @@ class InvoiceParams
     {
         $this->invoiceFrom = $from;
         $this->invoiceTo = $to;
+
         return $this;
     }
 
     public function setInvoiceDate(Carbon|string $date): self
     {
         $this->invoiceDate = $date instanceof Carbon ? $date : Carbon::parse($date);
+
         return $this;
     }
 
     public function setTotal(float $total): self
     {
         $this->total = $total;
+
         return $this;
     }
 
     public function setNet(float $net): self
     {
         $this->net = $net;
+
         return $this;
     }
 
     public function setExempt(float $exempt): self
     {
         $this->exempt = $exempt;
+
         return $this;
     }
 
     public function setCurrency(Currency $currency): self
     {
         $this->currency = $currency;
+
         return $this;
     }
 
     public function setCurrencyQuote(float $currencyQuote): InvoiceParams
     {
         $this->currencyQuote = $currencyQuote;
+
         return $this;
     }
 
     public function setVatCondition(int $condition): self
     {
         $this->vatCondition = $condition;
+
         return $this;
     }
 
@@ -133,34 +162,38 @@ class InvoiceParams
     {
         $this->serviceFrom = $from ?? null;
         $this->serviceTo = $to ?? null;
+
         return $this;
     }
 
     public function setDueDate(?Carbon $dueDate): self
     {
         $this->dueDate = $dueDate ?? null;
+
         return $this;
     }
 
-    /* ---------- [ Collection Helpers ] ----------  */
+    /* ---------- [ Collection Helpers ] ---------- */
 
     public function addTax(Tax $tax): self
     {
         $this->taxes->push($tax);
+
         return $this;
     }
 
     public function addVat(Vat $vat): self
     {
         if ($this->invoiceType === InvoiceType::FACTURA_C && $this->vatRates->sum('amount') > 0) {
-            throw new \InvalidArgumentException("Factura C no puede tener IVA.");
+            throw new \InvalidArgumentException('Factura C no puede tener IVA.');
         }
 
         $this->vatRates->push($vat);
+
         return $this;
     }
 
-    /* ---------- [ Getters ] ----------  */
+    /* ---------- [ Getters ] ---------- */
 
     public function getConcept(): InvoiceConcept
     {
@@ -257,13 +290,13 @@ class InvoiceParams
      */
     public function toArray(): array
     {
-        $ivaArray = $this->vatRates->map(fn(Vat $vat) => [
+        $ivaArray = $this->vatRates->map(fn (Vat $vat) => [
             'Id' => $vat->id,
             'BaseImp' => $vat->baseAmount,
             'Importe' => $vat->amount,
         ])->toArray();
 
-        $taxArray = $this->taxes->map(fn(Tax $t) => [
+        $taxArray = $this->taxes->map(fn (Tax $t) => [
             'Id' => $t->id,
             'Desc' => $t->description,
             'BaseImp' => $t->baseAmount,
@@ -298,8 +331,8 @@ class InvoiceParams
                         'MonId' => $this->currency->value,
                         'MonCotiz' => $this->currencyQuote,
                         'CondicionIVAReceptorId' => $this->vatCondition,
-                        'Tributos' => !empty($taxArray) ? ['Tributo' => $taxArray] : null,
-                        'Iva' => !empty($ivaArray) ? ['AlicIva' => $ivaArray] : null,
+                        'Tributos' => ! empty($taxArray) ? ['Tributo' => $taxArray] : null,
+                        'Iva' => ! empty($ivaArray) ? ['AlicIva' => $ivaArray] : null,
                     ],
                 ],
             ],

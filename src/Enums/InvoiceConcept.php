@@ -4,7 +4,6 @@ namespace AgustinZamar\LaravelArcaSdk\Enums;
 
 enum InvoiceConcept: int
 {
-
     case GOODS = 1;
     case SERVICES = 2;
     case GOODS_AND_SERVICES = 3;
@@ -17,5 +16,4 @@ enum InvoiceConcept: int
             self::GOODS_AND_SERVICES => 'Productos y servicios',
         };
     }
-
 }

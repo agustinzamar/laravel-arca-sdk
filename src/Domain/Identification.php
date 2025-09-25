@@ -8,10 +8,8 @@ class Identification
 {
     public function __construct(
         public readonly IdentificationType $type,
-        public readonly float              $number,
-    )
-    {
-    }
+        public readonly float $number,
+    ) {}
 
     public function getLabel(): string
     {
