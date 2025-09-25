@@ -152,10 +152,6 @@ class InvoiceParams
 
     public function addVat(Vat $vat): self
     {
-        if ($this->invoiceType === InvoiceType::FACTURA_C && $this->vatRates->sum('amount') > 0) {
-            throw new \InvalidArgumentException("Factura C no puede tener IVA.");
-        }
-
         $this->vatRates->push($vat);
         return $this;
     }
