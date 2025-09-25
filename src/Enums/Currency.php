@@ -14,12 +14,4 @@ enum Currency: string
         };
     }
 
-    public function getPrice(): int
-    {
-        return match ($this) {
-            self::ARS => 1,
-        };
-    }
-
-
 }
