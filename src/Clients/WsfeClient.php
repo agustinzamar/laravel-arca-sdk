@@ -11,6 +11,7 @@ use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use AgustinZamar\LaravelArcaSdk\Request\InvoiceParams;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Collection;
 use SoapClient;
 use stdClass;
@@ -44,7 +45,7 @@ class WsfeClient
         ]);
 
         if (isset($response->FEParamGetCondicionIvaReceptorResult->Errors) && !empty($response->FEParamGetCondicionIvaReceptorResult->Errors)) {
-            throw new \Exception('Error fetching identification types: ' . json_encode($response->FEParamGetCondicionIvaReceptorResult->Errors));
+            throw new Exception('Error fetching identification types: ' . json_encode($response->FEParamGetCondicionIvaReceptorResult->Errors));
         }
 
         return collect($response->FEParamGetCondicionIvaReceptorResult->ResultGet->CondicionIvaReceptor)
@@ -58,7 +59,7 @@ class WsfeClient
      * Collection of all the points of sale which are enabled for Web Services usage
      *
      * @return stdClass
-     * @throws \Exception
+     * @throws Exception
      */
     public function getPointsOfSale(): stdClass
     {
@@ -67,7 +68,7 @@ class WsfeClient
         ]);
 
         if ($response->FEParamGetPtosVentaResult->Errors && !empty($response->FEParamGetPtosVentaResult->Errors)) {
-            throw new \Exception('Error fetching points of sale: ' . json_encode($response->FEParamGetPtosVentaResult->Errors));
+            throw new Exception('Error fetching points of sale: ' . json_encode($response->FEParamGetPtosVentaResult->Errors));
         }
 
         return $response->FEParamGetPtosVentaResult->ResultGet;
@@ -84,23 +85,26 @@ class WsfeClient
         ]);
 
         if (isset($response->FECompUltimoAutorizadoResult->Errors) && !empty($response->FECompUltimoAutorizadoResult->Errors)) {
-            throw new \Exception('Error fetching last invoice number: ' . json_encode($response->FECompUltimoAutorizadoResult->Errors));
+            throw new Exception('Error fetching last invoice number: ' . json_encode($response->FECompUltimoAutorizadoResult->Errors));
         }
 
         return (int)$response->FECompUltimoAutorizadoResult->CbteNro;
     }
 
+    /**
+     * Create an invoice with the given parameters
+     *
+     * @param InvoiceParams $params
+     * @return Invoice
+     * @throws Exception
+     */
     public function generateInvoice(InvoiceParams $params): Invoice
     {
-        $lastInvoiceNumber = $this->getLastInvoiceNumber($params->getPointOfSale(), $params->getInvoiceType());
-        $params->setInvoiceFrom($lastInvoiceNumber + 1);
-        $params->setInvoiceTo($lastInvoiceNumber + 1);
-
         $params = array_merge(['Auth' => $this->getAuthParams()], $params->toArray());
         $response = $this->client->FECAESolicitar($params);
 
         if (isset($response->FECAESolicitarResult->Errors) && !empty($response->FECAESolicitarResult->Errors)) {
-            throw new \Exception('Error creating invoice: ' . json_encode($response->FECAESolicitarResult->Errors));
+            throw new Exception('Error creating invoice: ' . json_encode($response->FECAESolicitarResult->Errors));
         }
 
         $invoiceData = $response->FECAESolicitarResult->FeDetResp->FECAEDetResponse;
@@ -117,6 +121,22 @@ class WsfeClient
             cae: $invoiceData->CAE,
             caeExpirationDate: Carbon::createFromFormat('Ymd', $invoiceData->CAEFchVto)
         );
+    }
+
+    /**
+     * Generate the next invoice
+     *
+     * @param InvoiceParams $params
+     * @return Invoice
+     * @throws Exception
+     */
+    public function generateNextInvoice(InvoiceParams $params): Invoice
+    {
+        $lastInvoiceNumber = $this->getLastInvoiceNumber($params->getPointOfSale(), $params->getInvoiceType());
+        $params->setInvoiceFrom($lastInvoiceNumber + 1);
+        $params->setInvoiceTo($lastInvoiceNumber + 1);
+
+        return $this->generateInvoice($params);
     }
 
 

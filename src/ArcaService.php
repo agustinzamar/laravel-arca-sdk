@@ -83,4 +83,16 @@ class ArcaService
     {
         return $this->wsfe->getLastInvoiceNumber($pointOfSale, $invoiceType);
     }
+
+    /**
+     * Generate the next invoice based on the provided parameters
+     *
+     * @param InvoiceParams $params
+     * @return Invoice
+     * @throws Exception
+     */
+    public function generateNextInvoice(InvoiceParams $params): Invoice
+    {
+        return $this->wsfe->generateNextInvoice($params);
+    }
 }
