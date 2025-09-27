@@ -1,8 +1,8 @@
 <?php
 
-namespace AgustinZamar\LaravelArcaSdk\Domain;
+namespace AgustinZamar\LaravelArcaSdk\Contracts\Response;
 
-class VatCondition
+class VatConditionResponse
 {
 
     public function __construct(

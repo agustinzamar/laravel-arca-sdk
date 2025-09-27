@@ -8,8 +8,8 @@ use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\VatConditionResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
-use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use Exception;
@@ -53,7 +53,7 @@ class ArcaService
     /**
      * Obtain all the recipient VAT conditions
      *
-     * @return Collection<VatCondition>
+     * @return Collection<VatConditionResponse>
      * @throws Exception
      */
     public function getRecipientVatConditions(): Collection

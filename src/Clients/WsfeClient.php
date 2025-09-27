@@ -6,6 +6,7 @@ use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\VatConditionResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\Buyer;
 use AgustinZamar\LaravelArcaSdk\Domain\Identification;
 use AgustinZamar\LaravelArcaSdk\Domain\Observation;
@@ -13,11 +14,11 @@ use AgustinZamar\LaravelArcaSdk\Domain\Optional;
 use AgustinZamar\LaravelArcaSdk\Domain\RelatedInvoice;
 use AgustinZamar\LaravelArcaSdk\Domain\Tax;
 use AgustinZamar\LaravelArcaSdk\Domain\Vat;
-use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\Currency;
 use AgustinZamar\LaravelArcaSdk\Enums\IdentificationType;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceConcept;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
+use AgustinZamar\LaravelArcaSdk\Enums\RecipientVatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -45,7 +46,7 @@ class WsfeClient
     /**
      * Obtain all the recipient VAT conditions
      *
-     * @return Collection<VatCondition>
+     * @return Collection<VatConditionResponse>
      */
     public function getRecipientVatConditions(): Collection
     {
@@ -58,7 +59,7 @@ class WsfeClient
         }
 
         return collect($response->FEParamGetCondicionIvaReceptorResult->ResultGet->CondicionIvaReceptor)
-            ->map(fn($vatCondition) => new VatCondition(
+            ->map(fn($vatCondition) => new VatConditionResponse(
                 id: $vatCondition->Id,
                 name: $vatCondition->Desc,
             ));
@@ -204,45 +205,51 @@ class WsfeClient
                 : null,
             currencyCode: Currency::from($response->FECompConsultarResult->ResultGet->MonId),
             currencyRate: (float)($response->FECompConsultarResult->ResultGet->MonCotiz ?? 1),
-            associatedReceipts: array_map(fn($assoc) => new RelatedInvoice(
-                invoiceType: InvoiceType::from($assoc->Tipo),
-                pointOfSale: $assoc->PtoVta ?? 0,
-                invoiceNumber: $assoc->Nro ?? 0,
-            ), (array)($response->FECompConsultarResult->ResultGet->CbtesAsoc->CbteAsoc ?? [])),
-            taxes: array_map(fn($t) => new Tax(
+            recipientVatCondition: RecipientVatCondition::from($response->FECompConsultarResult->ResultGet->CondicionIVAReceptorId),
+            relatedInvoices: collect((array)($response->FECompConsultarResult->ResultGet->CbtesAsoc->CbteAsoc ?? []))
+                ->map(fn($ri) => new RelatedInvoice(
+                    invoiceType: InvoiceType::from($ri->Tipo),
+                    pointOfSale: $ri->PtoVta ?? 0,
+                    invoiceNumber: $ri->Nro ?? 0,
+                )),
+            taxes: collect(array_map(fn($t) => new Tax(
                 id: $t->Id,
                 description: $t->Desc,
                 baseAmount: $t->BaseImp,
                 rate: $t->Alic,
                 amount: $t->Importe
-            ), (array)($response->FECompConsultarResult->ResultGet->Tributos->Tributo ?? [])),
-            vatItems: array_map(fn($v) => new Vat(
+            ), (array)($response->FECompConsultarResult->ResultGet->Tributos->Tributo ?? []))),
+            vatItems: collect(array_map(fn($v) => new Vat(
                 id: $v->Id,
                 baseAmount: $v->BaseImp,
                 amount: $v->Importe
-            ), (array)($response->FECompConsultarResult->ResultGet->Iva->AlicIva ?? [])),
-            optionals: array_map(fn($o) => new Optional(
+            ), (array)($response->FECompConsultarResult->ResultGet->Iva->AlicIva ?? []))),
+            optionals: collect(array_map(fn($o) => new Optional(
                 id: $o->Id,
                 value: $o->Valor
-            ), (array)($response->FECompConsultarResult->ResultGet->Opcionales->Opcional ?? [])),
-            buyers: array_map(fn($c) => new Buyer(
+            ), (array)($response->FECompConsultarResult->ResultGet->Opcionales->Opcional ?? []))),
+            buyers: collect(array_map(fn($b) => new Buyer(
                 identification: new Identification(
-                    type: IdentificationType::from($c->DocTipo),
-                    number: $c->DocNro,
+                    type: IdentificationType::from($b->DocTipo),
+                    number: $b->DocNro,
                 ),
-                percentage: $c->Porcentaje
-            ), (array)($response->FECompConsultarResult->ResultGet->Compradores->Comprador ?? [])),
-            periodFrom: $response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchDesde ?? '',
-            periodTo: $response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchHasta ?? '',
+                percentage: (float)$b->Porcentaje,
+            ), (array)($response->FECompConsultarResult->ResultGet->Compradores->Comprador ?? []))),
+            periodFrom: isset($response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchDesde) && !empty($response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchDesde)
+                ? Carbon::createFromFormat('Ymd', $response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchDesde)
+                : null,
+            periodTo: isset($response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchHasta) && !empty($response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchHasta)
+                ? Carbon::createFromFormat('Ymd', $response->FECompConsultarResult->ResultGet->PeriodoAsoc->FchHasta)
+                : null,
             result: $response->FECompConsultarResult->ResultGet->Resultado ?? '',
             authorizationCode: $response->FECompConsultarResult->ResultGet->CodAutorizacion ?? '',
             emissionType: $response->FECompConsultarResult->ResultGet->EmisionTipo ?? '',
-            dueDate: $response->FECompConsultarResult->ResultGet->FchVto ?? '',
-            processDate: $response->FECompConsultarResult->ResultGet->FchProceso ?? '',
-            observations: array_map(fn($obs) => new Observation(
-                code: $obs->Code,
-                message: $obs->Msg
-            ), (array)($response->FECompConsultarResult->ResultGet->Observaciones->Obs ?? [])),
+            authorizationCodeDueDate: Carbon::createFromFormat('Ymd', $response->FECompConsultarResult->ResultGet->FchVto),
+            processDate: Carbon::createFromFormat('YmdHis', $response->FECompConsultarResult->ResultGet->FchProceso),
+            observations: collect(array_map(fn($o) => new Observation(
+                code: $o->Code,
+                message: $o->Msg,
+            ), (array)($response->FECompConsultarResult->ResultGet->Observaciones->Obs ?? [])))
         );
     }
 
