@@ -82,4 +82,18 @@ enum InvoiceType: int
             self::FCE_CREDITO_C => "Nota de Crédito electrónica MiPyMEs (FCE) C",
         };
     }
+
+    public function getLetter(): string
+    {
+        return match ($this) {
+            self::FACTURA_A, self::NOTA_DE_DEBITO_A, self::NOTA_DE_CREDITO_A => 'A',
+            self::FACTURA_B, self::NOTA_DE_DEBITO_B, self::NOTA_DE_CREDITO_B => 'B',
+            self::FACTURA_C, self::NOTA_DE_DEBITO_C, self::NOTA_DE_CREDITO_C => 'C',
+            self::FACTURA_M, self::NOTA_DE_DEBITO_M, self::NOTA_DE_CREDITO_M => 'M',
+            self::FCE_A, self::FCE_DEBITO_A, self::FCE_CREDITO_A => 'A',
+            self::FCE_B, self::FCE_DEBITO_B, self::FCE_CREDITO_B => 'B',
+            self::FCE_C, self::FCE_DEBITO_C, self::FCE_CREDITO_C => 'C',
+            default => '',
+        };
+    }
 }
