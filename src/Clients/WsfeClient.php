@@ -6,6 +6,7 @@ use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\OptionalTypesResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\VatConditionResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\Buyer;
 use AgustinZamar\LaravelArcaSdk\Domain\Identification;
@@ -256,6 +257,29 @@ class WsfeClient
                 message: $o->Msg,
             ), (array)($response->FECompConsultarResult->ResultGet->Observaciones->Obs ?? [])))
         );
+    }
+
+    /**
+     * Retrieve all allowed optional types
+     *
+     * @return Collection<OptionalTypesResponse>
+     * @throws Exception
+     */
+    public function getOptionalTypes(): Collection
+    {
+        $response = $this->client->FEParamGetTiposOpcional([
+            'Auth' => $this->getAuthParams(),
+        ]);
+
+        if (isset($response->FEParamGetTiposOpcionalResult->Errors) && !empty($response->FEParamGetTiposOpcionalResult->Errors)) {
+            throw new Exception('Error fetching optional types: ' . json_encode($response->FEParamGetTiposOpcionalResult->Errors));
+        }
+
+        return (new Collection($response->FEParamGetTiposOpcionalResult->ResultGet->OpcionalTipo))
+            ->map(fn($optionalType) => new OptionalTypesResponse(
+                id: $optionalType->Id,
+                description: $optionalType->Desc,
+            ));
     }
 
     /* ---------- [ Private Methods ] ----------  */
