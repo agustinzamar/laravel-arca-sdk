@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@php use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse; @endphp
+  <!DOCTYPE html>
 <html>
 <head>
     <title>Factura</title>
@@ -172,11 +173,16 @@
     </style>
 </head>
 <body>
+@php
+    /**
+    * @var InvoiceDetailResponse $invoice
+    */
+@endphp
 <table class="bill-container">
     <tr class="bill-emitter-row">
         <td>
             <div class="bill-type">
-                B
+                {{$invoice->invoiceType->getLetter()}}
             </div>
             <div class="text-lg text-center">
                 Empresa imaginaria S.A.
@@ -192,14 +198,15 @@
                 </div>
                 <div class="row">
                     <p class="col-6 margin-b-0">
-                        <strong>Punto de Venta: 0001</strong>
+                        <strong>Punto de
+                            Venta: {{\Illuminate\Support\Str::padLeft($invoice->pointOfSale, 4, '0')}}</strong>
                     </p>
                     <p class="col-6 margin-b-0">
-                        <strong>Comp. Nro: 000000032</strong>
+                        <strong>Comp. Nro: {{\Illuminate\Support\Str::padLeft($invoice->invoiceFrom, 9, '0')}}</strong>
                     </p>
                 </div>
-                <p><strong>Fecha de Emisión:</strong> 25/10/2023</p>
-                <p><strong>CUIT:</strong> 12345678912</p>
+                <p><strong>Fecha de Emisión:</strong> {{$invoice->invoiceDate->format('d/m/Y')}}</p>
+                <p><strong>CUIT:</strong> {{$invoice->identification->number}}</p>
                 <p><strong>Ingresos Brutos:</strong> 12345432</p>
                 <p><strong>Fecha de Inicio de Actividades:</strong> 25/10/2023</p>
             </div>
@@ -209,13 +216,15 @@
         <td colspan="2">
             <div class="row">
                 <p class="col-4 margin-b-0">
-                    <strong>Período Facturado Desde: </strong>25/10/2023
+                    <strong>Período Facturado
+                        Desde: </strong>{{$invoice->periodFrom?->format('d/m/Y') ?? $invoice->invoiceDate->format('d/m/Y')}}
                 </p>
                 <p class="col-3 margin-b-0">
-                    <strong>Hasta: </strong>25/10/2023
+                    <strong>Hasta: </strong>{{$invoice->periodTo?->format('d/m/Y') ?? $invoice->invoiceDate->format('d/m/Y')}}
                 </p>
                 <p class="col-5 margin-b-0">
-                    <strong>Fecha de Vto. para el pago: </strong>25/10/2023
+                    <strong>Fecha de Vto. para el
+                        pago: </strong>{{$invoice->paymentDueDate?->format('d/m/Y') ?? $invoice->invoiceDate->format('d/m/Y')}}
                 </p>
             </div>
         </td>
@@ -225,7 +234,7 @@
             <div>
                 <div class="row">
                     <p class="col-4 margin-b-0">
-                        <strong>CUIL/CUIT: </strong>12345678912
+                        <strong>CUIL/CUIT: </strong>{{$invoice->buyers->first()?->identification->number ?? '-'}}
                     </p>
                     <p class="col-8 margin-b-0">
                         <strong>Apellido y Nombre / Razón social: </strong>Pepe perez
@@ -233,7 +242,7 @@
                 </div>
                 <div class="row">
                     <p class="col-6 margin-b-0">
-                        <strong>Condición Frente al IVA: </strong>Consumidor final
+                        <strong>Condición Frente al IVA: </strong> {{$invoice->recipientVatCondition->getLabel()}}
                     </p>
                     <p class="col-6 margin-b-0">
                         <strong>Domicilio: </strong>Calle falsa 123
@@ -283,7 +292,9 @@
                         <strong>Subtotal: $</strong>
                     </p>
                     <p class="col-2 margin-b-0">
-                        <strong>150,00</strong>
+                        <strong>
+                            {{Number::currency($invoice->netAmount + $invoice->untaxedAmount + $invoice->exemptAmount, 'ars',  'es-AR')}}
+                        </strong>
                     </p>
                 </div>
                 <div class="row text-right">
@@ -291,7 +302,9 @@
                         <strong>Importe Otros Tributos: $</strong>
                     </p>
                     <p class="col-2 margin-b-0">
-                        <strong>0,00</strong>
+                        <strong>
+                            {{Number::currency($invoice->taxesAmount, 'ars',  'es-AR')}}
+                        </strong>
                     </p>
                 </div>
                 <div class="row text-right">
@@ -299,7 +312,9 @@
                         <strong>Importe total: $</strong>
                     </p>
                     <p class="col-2 margin-b-0">
-                        <strong>150,00</strong>
+                        <strong>
+                            {{Number::currency($invoice->totalAmount, 'ars',  'es-AR')}}
+                        </strong>
                     </p>
                 </div>
             </div>
@@ -319,10 +334,10 @@
         <td>
             <div>
                 <div class="row text-right margin-b-10">
-                    <strong>CAE Nº:&nbsp;</strong> 12345678912345
+                    <strong>CAE Nº:&nbsp;</strong> {{$invoice->authorizationCode}}
                 </div>
                 <div class="row text-right">
-                    <strong>Fecha de Vto. de CAE:&nbsp;</strong> 05/11/2023
+                    <strong>Fecha de Vto. de CAE:&nbsp;</strong> {{$invoice->authorizationCodeDueDate->format('d/m/Y')}}
                 </div>
             </div>
         </td>
