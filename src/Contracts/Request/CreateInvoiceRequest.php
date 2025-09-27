@@ -2,7 +2,10 @@
 
 namespace AgustinZamar\LaravelArcaSdk\Contracts\Request;
 
+use AgustinZamar\LaravelArcaSdk\Domain\Buyer;
 use AgustinZamar\LaravelArcaSdk\Domain\Identification;
+use AgustinZamar\LaravelArcaSdk\Domain\Optional;
+use AgustinZamar\LaravelArcaSdk\Domain\RelatedInvoice;
 use AgustinZamar\LaravelArcaSdk\Domain\Tax;
 use AgustinZamar\LaravelArcaSdk\Domain\Vat;
 use AgustinZamar\LaravelArcaSdk\Enums\Currency;
@@ -31,9 +34,22 @@ class CreateInvoiceRequest
         public readonly ?Carbon        $dueDate = null,
         public readonly Currency       $currency = Currency::ARS,
         public readonly float          $currencyQuote = 1,
+        public readonly ?float         $foreignCurrencyAmount = 0,
         public readonly ?Carbon        $invoiceDate = null,
+        /** @var Collection<Tax> */
         public readonly ?Collection    $taxes = new Collection,
+        /** @var Collection<Vat> */
         public readonly ?Collection    $vatRates = new Collection,
+        /** @var Collection<RelatedInvoice> */
+        public readonly ?Collection    $relatedInvoices = new Collection,
+        /** @var Collection<Optional> */
+        public readonly ?Collection    $optionals = new Collection,
+        /** @var Collection<Buyer> */
+        public readonly ?Collection    $buyers = new Collection,
+        public readonly ?Carbon        $periodFrom = null,
+        public readonly ?Carbon        $periodTo = null,
+        /** @var Collection<int> */
+        public readonly ?Collection    $activities = new Collection,
     )
     {
     }
@@ -57,9 +73,16 @@ class CreateInvoiceRequest
             dueDate: $this->dueDate,
             currency: $this->currency,
             currencyQuote: $this->currencyQuote,
+            foreignCurrencyAmount: $this->foreignCurrencyAmount,
             invoiceDate: $this->invoiceDate,
             taxes: $this->taxes,
             vatRates: $this->vatRates,
+            relatedInvoices: $this->relatedInvoices,
+            optionals: $this->optionals,
+            buyers: $this->buyers,
+            periodFrom: $this->periodFrom,
+            periodTo: $this->periodTo,
+            activities: $this->activities,
         );
     }
 
@@ -77,6 +100,25 @@ class CreateInvoiceRequest
             'BaseImp' => $t->baseAmount,
             'Alic' => $t->rate,
             'Importe' => $t->amount,
+        ])->toArray();
+
+        $relatedInvoicesArray = $this->relatedInvoices->map(fn(RelatedInvoice $r) => [
+            'Tipo' => $r->invoiceType->value,
+            'PtoVta' => $r->pointOfSale,
+            'Nro' => $r->invoiceNumber,
+            'Cuit' => $r->cuit,
+            'CbteFch' => $r->invoiceDate?->format('Ymd'),
+        ])->toArray();
+
+        $optionalsArray = $this->optionals->map(fn(Optional $o) => [
+            'Id' => $o->id,
+            'Valor' => $o->value,
+        ])->toArray();
+
+        $buyersArray = $this->buyers->map(fn(Buyer $b) => [
+            'DocTipo' => $b->identification->type->value,
+            'DocNro' => $b->identification->number,
+            'Porcentaje' => $b->percentage,
         ])->toArray();
 
         return [
@@ -105,10 +147,21 @@ class CreateInvoiceRequest
                         'FchVtoPago' => $this->dueDate?->format('Ymd'),
                         'MonId' => $this->currency->value,
                         'MonCotiz' => $this->currencyQuote,
+                        'CanMisMonExt' => $this->foreignCurrencyAmount,
                         'CondicionIVAReceptorId' => $this->vatCondition,
+                        'CbtesAsoc' => $relatedInvoicesArray ? ['CbteAsoc' => $relatedInvoicesArray] : null,
                         'Tributos' => $taxArray ? ['Tributo' => $taxArray] : null,
                         'Iva' => $ivaArray ? ['AlicIva' => $ivaArray] : null,
-                    ],
+                        'Opcionales' => $optionalsArray ? ['Opcional' => $optionalsArray] : null,
+                        'Compradores' => $buyersArray ? ['Comprador' => $buyersArray] : null,
+                        'PeriodoAsoc' => [
+                            'FchDesde' => $this->periodFrom?->format('Ymd'),
+                            'FchHasta' => $this->periodTo?->format('Ymd'),
+                        ],
+                        'Actividades' => $this->activities->isNotEmpty()
+                            ? ['Actividad' => $this->activities->map(fn($id) => ['Id' => $id])->toArray()]
+                            : null,
+                    ]
                 ],
             ],
         ];
