@@ -4,7 +4,6 @@ namespace AgustinZamar\LaravelArcaSdk\Enums;
 
 enum IdentificationType: string
 {
-
     case CUIT = '80';
     case CUIL = '86';
     case DNI = '96';
@@ -21,5 +20,4 @@ enum IdentificationType: string
             self::FOREIGN_ID => 'Identificación Extranjera',
         };
     }
-
 }

@@ -18,8 +18,8 @@ class LaravelArcaSdkServiceProvider extends PackageServiceProvider
             ->name('laravel-arca-sdk')
             ->hasConfigFile()
             ->hasViews();
-//            ->hasRoute('web');
-//            ->hasMigration('create_migration_table_name_table')
-//            ->hasCommand(SkeletonCommand::class);
+        //            ->hasRoute('web');
+        //            ->hasMigration('create_migration_table_name_table')
+        //            ->hasCommand(SkeletonCommand::class);
     }
 }
