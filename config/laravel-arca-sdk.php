@@ -16,7 +16,7 @@ return [
     // Cache
     // ***********
     'cache_key' => 'laravel-arca-sdk-ta',
-    'cache_ttl' => 3600 * 24,
+    'cache_ttl' => 3600 * 12, // 12 hours
 
     // ***********
     // URL for the different web services
