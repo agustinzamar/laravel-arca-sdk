@@ -24,7 +24,6 @@ return [
     'public_cert' => env('ARCA_PUBLIC_CERT', storage_path('app/arca/arca.crt')),
     'passphrase' => env('ARCA_PASSPHRASE', null),
 
-
     /*
     |--------------------------------------------------------------------------
     | Cache
@@ -54,5 +53,5 @@ return [
             'production' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
             'testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
         ],
-    ]
+    ],
 ];

@@ -11,11 +11,9 @@ class RelatedInvoice
 {
     public function __construct(
         public readonly InvoiceType $invoiceType,
-        public readonly int         $pointOfSale,
-        public readonly int         $invoiceNumber,
-        public readonly ?string     $cuit = null,
-        public readonly ?Carbon     $invoiceDate = null,
-    )
-    {
-    }
+        public readonly int $pointOfSale,
+        public readonly int $invoiceNumber,
+        public readonly ?string $cuit = null,
+        public readonly ?Carbon $invoiceDate = null,
+    ) {}
 }

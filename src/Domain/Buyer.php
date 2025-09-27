@@ -8,8 +8,6 @@ class Buyer
 {
     public function __construct(
         public Identification $identification,
-        public float          $percentage,
-    )
-    {
-    }
+        public float $percentage,
+    ) {}
 }

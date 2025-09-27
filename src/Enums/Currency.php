@@ -4,7 +4,6 @@ namespace AgustinZamar\LaravelArcaSdk\Enums;
 
 enum Currency: string
 {
-
     case ARS = 'PES';
 
     public function getLabel(): string
@@ -13,5 +12,4 @@ enum Currency: string
             self::ARS => 'Peso Argentino',
         };
     }
-
 }

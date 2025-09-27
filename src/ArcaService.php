@@ -21,19 +21,17 @@ use stdClass;
 class ArcaService
 {
     protected WsaaClient $wsaa;
+
     protected WsfeClient $wsfe;
 
     public function __construct()
     {
-        $this->wsaa = new WsaaClient();
+        $this->wsaa = new WsaaClient;
         $this->wsfe = new WsfeClient($this->wsaa);
     }
 
     /**
      * Obtain an authorization ticket for the specified web service.
-     *
-     * @param WebService|string $service
-     * @return AuthorizationTicket
      */
     public function getAuthorizationTicket(WebService|string $service): AuthorizationTicket
     {
@@ -43,7 +41,6 @@ class ArcaService
     /**
      * Obtain all the points of sale which are enabled for Web Services usage
      *
-     * @return stdClass
      * @throws Exception
      */
     public function getPointsOfSale(): stdClass
@@ -51,11 +48,11 @@ class ArcaService
         return $this->wsfe->getPointsOfSale();
     }
 
-
     /**
      * Obtain all the recipient VAT conditions
      *
      * @return Collection<VatConditionResponse>
+     *
      * @throws Exception
      */
     public function getRecipientVatConditions(): Collection
@@ -66,8 +63,8 @@ class ArcaService
     /**
      * Generate an invoice with the provided parameters
      *
-     * @param array $request
-     * @return InvoiceCreatedResponse
+     * @param  array  $request
+     *
      * @throws Exception
      */
     public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
@@ -78,9 +75,6 @@ class ArcaService
     /**
      * Obtain the last invoice number for the specified point of sale and invoice type
      *
-     * @param int $pointOfSale
-     * @param InvoiceType|int $invoiceType
-     * @return int
      * @throws Exception
      */
     public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int
@@ -91,8 +85,8 @@ class ArcaService
     /**
      * Generate the next invoice based on the provided parameters
      *
-     * @param InvoiceParams $request
-     * @return InvoiceCreatedResponse
+     * @param  InvoiceParams  $request
+     *
      * @throws Exception
      */
     public function generateNextInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
@@ -103,10 +97,8 @@ class ArcaService
     /**
      * Retrieve the details of a specific invoice
      *
-     * @param int $pointOfSale
-     * @param InvoiceType|int $invoiceType
-     * @param int $invoiceNumber
      * @return InvoiceCreatedResponse
+     *
      * @throws Exception
      */
     public function getInvoiceDetails(int $pointOfSale, InvoiceType|int $invoiceType, int $invoiceNumber): InvoiceDetailResponse
@@ -118,6 +110,7 @@ class ArcaService
      * Retrieve all allowed optional types
      *
      * @return Collection<OptionalTypesResponse>
+     *
      * @throws Exception
      */
     public function getOptionalTypes(): Collection
@@ -129,6 +122,7 @@ class ArcaService
      * Retrieve all invoice types
      *
      * @return Collection<InvoiceTypeResponse>
+     *
      * @throws Exception
      */
     public function getInvoiceTypes(): Collection

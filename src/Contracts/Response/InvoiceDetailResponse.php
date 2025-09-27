@@ -21,45 +21,43 @@ use Illuminate\Support\Collection;
 class InvoiceDetailResponse
 {
     public function __construct(
-        public InvoiceConcept        $concept,
-        public Identification        $identification,
-        public InvoiceType           $invoiceType,
-        public int                   $pointOfSale,
-        public int                   $invoiceFrom,
-        public int                   $invoiceTo,
-        public Carbon                $invoiceDate,
-        public float                 $totalAmount,
-        public float                 $untaxedAmount,
-        public float                 $netAmount,
-        public float                 $exemptAmount,
-        public float                 $taxesAmount,
-        public float                 $vatAmount,
-        public ?Carbon               $serviceDateFrom,
-        public ?Carbon               $serviceDateTo,
-        public ?Carbon               $paymentDueDate,
-        public Currency              $currencyCode,
-        public float                 $currencyRate,
+        public InvoiceConcept $concept,
+        public Identification $identification,
+        public InvoiceType $invoiceType,
+        public int $pointOfSale,
+        public int $invoiceFrom,
+        public int $invoiceTo,
+        public Carbon $invoiceDate,
+        public float $totalAmount,
+        public float $untaxedAmount,
+        public float $netAmount,
+        public float $exemptAmount,
+        public float $taxesAmount,
+        public float $vatAmount,
+        public ?Carbon $serviceDateFrom,
+        public ?Carbon $serviceDateTo,
+        public ?Carbon $paymentDueDate,
+        public Currency $currencyCode,
+        public float $currencyRate,
         public RecipientVatCondition $recipientVatCondition,
         /** @var Collection<RelatedInvoice> */
-        public Collection            $relatedInvoices,
+        public Collection $relatedInvoices,
         /** @var Collection<Tax> */
-        public Collection            $taxes,
+        public Collection $taxes,
         /** @var Collection<Vat> */
-        public Collection            $vatItems,
+        public Collection $vatItems,
         /** @var Collection<Optional> */
-        public Collection            $optionals,
+        public Collection $optionals,
         /** @var Collection<Buyer> */
-        public Collection            $buyers,
-        public ?Carbon               $periodFrom,
-        public ?Carbon               $periodTo,
-        public string                $result,
-        public string                $authorizationCode,
-        public string                $emissionType,
-        public Carbon                $authorizationCodeDueDate,
-        public Carbon                $processDate,
+        public Collection $buyers,
+        public ?Carbon $periodFrom,
+        public ?Carbon $periodTo,
+        public string $result,
+        public string $authorizationCode,
+        public string $emissionType,
+        public Carbon $authorizationCodeDueDate,
+        public Carbon $processDate,
         /** @var Collection<Observation> */
-        public Collection            $observations,
-    )
-    {
-    }
+        public Collection $observations,
+    ) {}
 }

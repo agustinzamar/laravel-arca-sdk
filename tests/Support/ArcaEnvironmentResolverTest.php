@@ -50,7 +50,7 @@ it('returns testing for any non-production value', function () {
         'false',
         'true',
         '0',
-        '1'
+        '1',
     ];
 
     foreach ($nonProductionValues as $value) {
@@ -68,7 +68,7 @@ it('is case sensitive for production value', function () {
         'PRODUCTION',
         'Production',
         'pRODUCTION',
-        'production '  // with trailing space
+        'production ',  // with trailing space
     ];
 
     foreach ($caseVariants as $variant) {

@@ -14,7 +14,7 @@ class ArcaUrlResolver
         $env = ArcaEnvironmentResolver::getEnv();
         $url = config("laravel-arca-sdk.$service.$env");
 
-        if (!$url) {
+        if (! $url) {
             throw new \InvalidArgumentException("No URL configured for service [$service] in environment [$env]");
         }
 
