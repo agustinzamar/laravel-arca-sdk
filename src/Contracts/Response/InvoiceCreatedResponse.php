@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace AgustinZamar\LaravelArcaSdk\Domain;
+namespace AgustinZamar\LaravelArcaSdk\Contracts\Response;
 
+use AgustinZamar\LaravelArcaSdk\Domain\Identification;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceConcept;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 
-class Invoice
+class InvoiceCreatedResponse
 {
     public function __construct(
         public readonly InvoiceConcept $concept,
@@ -16,7 +17,7 @@ class Invoice
         public readonly int            $invoiceTo,
         public readonly Carbon         $invoiceDate,
         public readonly string         $cae,
-        public readonly Carbon         $caeExpirationDate
+        public readonly Carbon         $caeExpirationDate,
     )
     {
     }

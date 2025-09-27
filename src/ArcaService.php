@@ -4,12 +4,14 @@ namespace AgustinZamar\LaravelArcaSdk;
 
 use AgustinZamar\LaravelArcaSdk\Clients\WsaaClient;
 use AgustinZamar\LaravelArcaSdk\Clients\WsfeClient;
+use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
+use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
-use AgustinZamar\LaravelArcaSdk\Domain\Invoice;
 use AgustinZamar\LaravelArcaSdk\Domain\VatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
-use AgustinZamar\LaravelArcaSdk\Request\InvoiceParams;
 use Exception;
 use Illuminate\Support\Collection;
 use stdClass;
@@ -62,13 +64,13 @@ class ArcaService
     /**
      * Generate an invoice with the provided parameters
      *
-     * @param array $params
-     * @return Invoice
+     * @param array $request
+     * @return InvoiceCreatedResponse
      * @throws Exception
      */
-    public function generateInvoice(InvoiceParams $params): Invoice
+    public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
     {
-        return $this->wsfe->generateInvoice($params);
+        return $this->wsfe->generateInvoice($request);
     }
 
     /**
@@ -87,12 +89,26 @@ class ArcaService
     /**
      * Generate the next invoice based on the provided parameters
      *
-     * @param InvoiceParams $params
-     * @return Invoice
+     * @param InvoiceParams $request
+     * @return InvoiceCreatedResponse
      * @throws Exception
      */
-    public function generateNextInvoice(InvoiceParams $params): Invoice
+    public function generateNextInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
     {
-        return $this->wsfe->generateNextInvoice($params);
+        return $this->wsfe->generateNextInvoice($request);
+    }
+
+    /**
+     * Retrieve the details of a specific invoice
+     *
+     * @param int $pointOfSale
+     * @param InvoiceType|int $invoiceType
+     * @param int $invoiceNumber
+     * @return InvoiceCreatedResponse
+     * @throws Exception
+     */
+    public function getInvoiceDetails(int $pointOfSale, InvoiceType|int $invoiceType, int $invoiceNumber): InvoiceDetailResponse
+    {
+        return $this->wsfe->getInvoiceDetails($pointOfSale, $invoiceType, $invoiceNumber);
     }
 }
