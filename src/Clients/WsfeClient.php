@@ -6,6 +6,7 @@ use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceTypeResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\OptionalTypesResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\VatConditionResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\Buyer;
@@ -279,6 +280,29 @@ class WsfeClient
             ->map(fn($optionalType) => new OptionalTypesResponse(
                 id: $optionalType->Id,
                 description: $optionalType->Desc,
+            ));
+    }
+
+    /**
+     * Retrieve invoice types
+     *
+     * @return Collection<InvoiceTypeResponse>
+     * @throws Exception
+     */
+    public function getInvoiceTypes(): Collection
+    {
+        $response = $this->client->FEParamGetTiposCbte([
+            'Auth' => $this->getAuthParams(),
+        ]);
+
+        if (isset($response->FEParamGetTiposCbteResult->Errors) && !empty($response->FEParamGetTiposCbteResult->Errors)) {
+            throw new Exception('Error fetching invoice types: ' . json_encode($response->FEParamGetTiposCbteResult->Errors));
+        }
+
+        return (new Collection($response->FEParamGetTiposCbteResult->ResultGet->CbteTipo))
+            ->map(fn($invoiceType) => new InvoiceTypeResponse(
+                id: $invoiceType->Id,
+                name: $invoiceType->Desc,
             ));
     }
 

@@ -8,6 +8,7 @@ use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
+use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceTypeResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\OptionalTypesResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\VatConditionResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
@@ -122,5 +123,16 @@ class ArcaService
     public function getOptionalTypes(): Collection
     {
         return $this->wsfe->getOptionalTypes();
+    }
+
+    /**
+     * Retrieve all invoice types
+     *
+     * @return Collection<InvoiceTypeResponse>
+     * @throws Exception
+     */
+    public function getInvoiceTypes(): Collection
+    {
+        return $this->wsfe->getInvoiceTypes();
     }
 }
