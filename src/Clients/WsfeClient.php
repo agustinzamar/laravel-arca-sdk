@@ -17,6 +17,7 @@ use AgustinZamar\LaravelArcaSdk\Domain\Vat;
 use AgustinZamar\LaravelArcaSdk\Enums\Currency;
 use AgustinZamar\LaravelArcaSdk\Enums\IdentificationType;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceConcept;
+use AgustinZamar\LaravelArcaSdk\Enums\InvoiceCreatedResult;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\RecipientVatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
@@ -118,6 +119,10 @@ class WsfeClient
         }
 
         $invoiceData = $response->FECAESolicitarResult->FeDetResp->FECAEDetResponse;
+
+        if ($invoiceData->Resultado !== InvoiceCreatedResult::APPROVED->value) {
+            throw new Exception('Invoice not approved: ' . json_encode($invoiceData->Observaciones));
+        }
 
         return new InvoiceCreatedResponse(
             concept: InvoiceConcept::from($invoiceData->Concepto),

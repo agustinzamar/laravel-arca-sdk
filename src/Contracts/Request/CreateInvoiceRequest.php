@@ -34,7 +34,7 @@ class CreateInvoiceRequest
         public readonly ?Carbon        $dueDate = null,
         public readonly Currency       $currency = Currency::ARS,
         public readonly float          $currencyQuote = 1,
-        public readonly ?float         $foreignCurrencyAmount = 0,
+        public readonly ?string        $foreignCurrencyAmount = null,
         public readonly ?Carbon        $invoiceDate = null,
         /** @var Collection<Tax> */
         public readonly ?Collection    $taxes = new Collection,
@@ -154,10 +154,10 @@ class CreateInvoiceRequest
                         'Iva' => $ivaArray ? ['AlicIva' => $ivaArray] : null,
                         'Opcionales' => $optionalsArray ? ['Opcional' => $optionalsArray] : null,
                         'Compradores' => $buyersArray ? ['Comprador' => $buyersArray] : null,
-                        'PeriodoAsoc' => [
+                        'PeriodoAsoc' => ($this->periodFrom || $this->periodTo) ? [
                             'FchDesde' => $this->periodFrom?->format('Ymd'),
                             'FchHasta' => $this->periodTo?->format('Ymd'),
-                        ],
+                        ] : null,
                         'Actividades' => $this->activities->isNotEmpty()
                             ? ['Actividad' => $this->activities->map(fn($id) => ['Id' => $id])->toArray()]
                             : null,
