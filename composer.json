@@ -1,6 +1,7 @@
 {
   "name": "agustinzamar/laravel-arca-sdk",
-  "description": "A Laravel package for integrating with the Arca (Ex AFIP) Web Services.",
+  "description": "A Laravel package to easily use the ARCA (ex AFIP) web services.",
+  "type": "library",
   "keywords": [
     "Agustin Zamar",
     "laravel",
@@ -8,7 +9,7 @@
     "sdk",
     "afip"
   ],
-  "homepage": "https://github.com/:vendor_slug/:package_slug",
+  "homepage": "https://github.com/agustinzamar/laravel-arca-sdk",
   "license": "MIT",
   "authors": [
     {
