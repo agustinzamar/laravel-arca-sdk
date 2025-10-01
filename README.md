@@ -1,26 +1,15 @@
-# :package_description
+# A Laravel package to easily use the ARCA (ex AFIP) web services.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/agustinzamar/laravel-arca-sdk.svg?style=flat-square)](https://packagist.org/packages/agustinzamar/laravel-arca-sdk)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/agustinzamar/laravel-arca-sdk/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/agustinzamar/laravel-arca-sdk/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/agustinzamar/laravel-arca-sdk/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/agustinzamar/laravel-arca-sdk/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/agustinzamar/laravel-arca-sdk.svg?style=flat-square)](https://packagist.org/packages/agustinzamar/laravel-arca-sdk)
-<!--delete-->
----
-This repo can be used to scaffold a Laravel package. Follow these steps to get started:
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
-3. Have fun creating your package.
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel
-   Package Training</a> video course.
-
----
-<!--/delete-->
 This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
 
 ## Support us
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/Laravel ARCA SDK.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/Laravel
+[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-arca-sdk.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/Laravel
 ARCA SDK)
 
 We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can
@@ -67,8 +56,8 @@ php artisan vendor:publish --tag="laravel-arca-sdk-views"
 ## Usage
 
 ```php
-$variable = new AgustinZamar\Skeleton();
-echo $variable->echoPhrase('Hello, AgustinZamar!');
+$laravelArcaSdk = new AgustinZamar\Skeleton();
+echo $laravelArcaSdk->echoPhrase('Hello, AgustinZamar!');
 ```
 
 ## Testing
@@ -91,7 +80,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [:author_name](https://github.com/:author_username)
+- [Agustin Zamar](https://github.com/agustinzamar)
 - [All Contributors](../../contributors)
 
 ## License

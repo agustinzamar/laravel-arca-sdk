@@ -5,7 +5,6 @@ namespace AgustinZamar\LaravelArcaSdk;
 use AgustinZamar\LaravelArcaSdk\Clients\WsaaClient;
 use AgustinZamar\LaravelArcaSdk\Clients\WsfeClient;
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
-use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceTypeResponse;
@@ -18,7 +17,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use stdClass;
 
-class ArcaService
+class LaravelArcaSdk
 {
     protected WsaaClient $wsaa;
 
@@ -63,7 +62,6 @@ class ArcaService
     /**
      * Generate an invoice with the provided parameters
      *
-     * @param  array  $request
      *
      * @throws Exception
      */

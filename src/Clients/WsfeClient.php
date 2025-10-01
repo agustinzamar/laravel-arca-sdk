@@ -5,7 +5,6 @@ namespace AgustinZamar\LaravelArcaSdk\Clients;
 use const SOAP_1_2;
 
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
-use AgustinZamar\LaravelArcaSdk\Contracts\Request\InvoiceParams;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceTypeResponse;
@@ -108,7 +107,6 @@ class WsfeClient
     /**
      * Create an invoice with the given parameters
      *
-     * @param  InvoiceParams  $request
      *
      * @throws Exception
      */
@@ -144,7 +142,6 @@ class WsfeClient
     /**
      * Generate the next invoice
      *
-     * @param  InvoiceParams  $request
      *
      * @throws Exception
      */
@@ -160,8 +157,6 @@ class WsfeClient
     /**
      * Get the details of a specific invoice
      *
-     * @param  InvoiceType  $invoiceType
-     * @return stdClass
      *
      * @throws Exception
      */

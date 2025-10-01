@@ -2,16 +2,16 @@
 
 namespace AgustinZamar\LaravelArcaSdk\Facades;
 
-use AgustinZamar\LaravelArcaSdk\ArcaService;
+use AgustinZamar\LaravelArcaSdk\LaravelArcaSdk;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \AgustinZamar\LaravelArcaSdk\WsaaClient
+ * @see LaravelArcaSdk
  */
 class Arca extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return ArcaService::class;
+        return LaravelArcaSdk::class;
     }
 }

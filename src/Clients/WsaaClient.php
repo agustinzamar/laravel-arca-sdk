@@ -24,7 +24,7 @@ class WsaaClient
 
         return Cache::remember($cacheKey, $this->ttl(), function () use ($service) {
             $cms = $this->signTra($this->createTra($service));
-            $taXml = $this->callWsaa($cms);
+            $taXml = $this->callLaravelArcaSdk($cms);
 
             Storage::disk('local')->put(self::TA_FILE, $taXml);
 
@@ -93,7 +93,7 @@ class WsaaClient
         return $cms;
     }
 
-    protected function callWsaa(string $cms): string
+    protected function callLaravelArcaSdk(string $cms): string
     {
         $client = new SoapClient(config('laravel-arca-sdk.wsaa_wsdl_url'), [
             'soap_version' => SOAP_1_2,
