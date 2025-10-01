@@ -5,9 +5,11 @@ namespace AgustinZamar\LaravelArcaSdk\Clients;
 use const SOAP_1_2;
 
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
+use AgustinZamar\LaravelArcaSdk\Exceptions\ArcaException;
 use AgustinZamar\LaravelArcaSdk\Support\ArcaUrlResolver;
 use SoapClient;
 use SoapFault;
+use stdClass;
 
 abstract class ArcaClient
 {
@@ -39,15 +41,25 @@ abstract class ArcaClient
 
     /**
      * Call SOAP method with automatic Auth parameter injection
+     *
+     * @throws ArcaException
      */
-    protected function call(string $method, array $params = []): mixed
+    protected function call(string $method, array $params = []): stdClass
     {
         // Automatically merge Auth params if not already present
         if (! isset($params['Auth'])) {
             $params['Auth'] = $this->getAuthParams();
         }
 
-        return $this->client->$method($params);
+        try {
+            return $this->client->$method($params);
+        } catch (SoapFault $e) {
+            throw new ArcaException(
+                message: "Error calling {$method} on {$this->service->value}: {$e->getMessage()}",
+                code: $e->getCode(),
+                previous: $e
+            );
+        }
     }
 
     protected function getAuthParams(): array
@@ -59,5 +71,10 @@ abstract class ArcaClient
             'Sign' => $authorizationTicket->sign,
             'Cuit' => config('laravel-arca-sdk.cuit'),
         ];
+    }
+
+    protected function hasErrors(object $result): bool
+    {
+        return ! empty($result->Errors);
     }
 }
