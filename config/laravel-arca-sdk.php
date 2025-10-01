@@ -20,8 +20,9 @@ return [
     |
     */
     'cuit' => env('ARCA_CUIT', '20111111112'),
-    'private_key' => env('ARCA_PRIVATE_KEY', storage_path('app/arca/arca.key')),
-    'public_cert' => env('ARCA_PUBLIC_CERT', storage_path('app/arca/arca.crt')),
+    'directory' => env('ARCA_DIRECTORY', storage_path('private/arca')),
+    'private_key' => env('ARCA_PRIVATE_KEY', 'arca.key'),
+    'public_cert' => env('ARCA_PUBLIC_CERT', 'arca.crt'),
     'passphrase' => env('ARCA_PASSPHRASE', null),
 
     /*

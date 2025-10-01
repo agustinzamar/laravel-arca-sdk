@@ -6,18 +6,11 @@ use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use AgustinZamar\LaravelArcaSdk\Support\ArcaUrlResolver;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use SimpleXMLElement;
 use SoapClient;
 
 class WsaaClient
 {
-    const TA_FILE = 'app/arca/TA.xml';
-
-    const TRA_FILE = 'app/arca/TRA.xml';
-
-    const TRA_TEMP_FILE = 'app/arca/TRA.tmp';
-
     public function getAuthorizationTicket(WebService|string $service): AuthorizationTicket
     {
         $service = $service instanceof WebService ? $service->value : $service;
@@ -25,9 +18,16 @@ class WsaaClient
 
         return Cache::remember($cacheKey, $this->ttl(), function () use ($service) {
             $cms = $this->signTra($this->createTra($service));
-            $taXml = $this->callLaravelArcaSdk($cms);
+            $taXml = $this->requestLogin($cms);
 
-            Storage::disk('local')->put(self::TA_FILE, $taXml);
+            $taPath = $this->getFilePath('TA.xml');
+
+            // Ensure directory exists
+            if (! is_dir(dirname($taPath))) {
+                mkdir(dirname($taPath), 0755, true);
+            }
+
+            file_put_contents($taPath, $taXml);
 
             $ta = new SimpleXMLElement($taXml);
 
@@ -51,7 +51,7 @@ class WsaaClient
 
         $xml->addChild('service', $service);
 
-        $path = storage_path(self::TRA_FILE);
+        $path = $this->getFilePath('TRA.xml');
         $dir = dirname($path);
 
         if (! is_dir($dir)) {
@@ -65,12 +65,14 @@ class WsaaClient
 
     protected function signTra(string $traPath): string
     {
-        $tmpPath = storage_path(self::TRA_TEMP_FILE);
+        $tmpPath = $this->getFilePath('TRA.tmp');
+        $certificatePath = $this->getFilePath(config('laravel-arca-sdk.public_cert'));
+        $keyPath = $this->getFilePath(config('laravel-arca-sdk.private_key'));
         $status = openssl_pkcs7_sign(
             $traPath,
             $tmpPath,
-            'file://'.config('laravel-arca-sdk.public_cert'),
-            ['file://'.config('laravel-arca-sdk.private_key'), config('laravel-arca-sdk.passphrase')],
+            'file://'.$certificatePath,
+            ['file://'.$keyPath, config('laravel-arca-sdk.passphrase')],
             [],
             ! PKCS7_DETACHED
         );
@@ -94,7 +96,7 @@ class WsaaClient
         return $cms;
     }
 
-    protected function callLaravelArcaSdk(string $cms): string
+    protected function requestLogin(string $cms): string
     {
         $client = new SoapClient(ArcaUrlResolver::getWebServiceUrl(WebService::WSAA), [
             'soap_version' => SOAP_1_2,
@@ -105,6 +107,13 @@ class WsaaClient
         $result = $client->loginCms(['in0' => $cms]);
 
         return $result->loginCmsReturn;
+    }
+
+    protected function getFilePath(string $filename): string
+    {
+        $directory = config('laravel-arca-sdk.directory');
+
+        return rtrim($directory, '/').'/'.$filename;
     }
 
     protected function cacheKey(): string
