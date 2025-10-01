@@ -45,12 +45,12 @@ return [
     */
     'wsdl_url' => [
         'wsaa' => [
-            'production' => 'https://wsaa.afip.gov.ar/ws/services/LoginCms?WSDL',
+            'production' => '',
             'testing' => 'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL',
         ],
 
         'wsfe' => [
-            'production' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+            'production' => '',
             'testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
         ],
     ],
