@@ -43,7 +43,7 @@ abstract class ArcaClient
     protected function call(string $method, array $params = []): mixed
     {
         // Automatically merge Auth params if not already present
-        if (!isset($params['Auth'])) {
+        if (! isset($params['Auth'])) {
             $params['Auth'] = $this->getAuthParams();
         }
 
