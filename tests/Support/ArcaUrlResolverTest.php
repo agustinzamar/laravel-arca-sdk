@@ -9,7 +9,7 @@ it('can get url with web service enum', function () {
     // Set up configuration for testing environment
     config([
         'laravel-arca-sdk.env' => 'testing',
-        'laravel-arca-sdk.wsfe.testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+        'laravel-arca-sdk.wsdl_url.wsfe.testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
     ]);
 
     $url = ArcaUrlResolver::getWebServiceUrl(WebService::WSFE);
@@ -21,7 +21,7 @@ it('can get url with string service name', function () {
     // Set up configuration for testing environment
     config([
         'laravel-arca-sdk.env' => 'testing',
-        'laravel-arca-sdk.wsfe.testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+        'laravel-arca-sdk.wsdl_url.wsfe.testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
     ]);
 
     $url = ArcaUrlResolver::getWebServiceUrl('wsfe');
@@ -33,7 +33,7 @@ it('can get production url', function () {
     // Set up configuration for production environment
     config([
         'laravel-arca-sdk.env' => 'production',
-        'laravel-arca-sdk.wsfe.production' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+        'laravel-arca-sdk.wsdl_url.wsfe.production' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
     ]);
 
     $url = ArcaUrlResolver::getWebServiceUrl(WebService::WSFE);
@@ -45,7 +45,7 @@ it('can get testing url', function () {
     // Set up configuration for testing environment (default)
     config([
         'laravel-arca-sdk.env' => 'testing',
-        'laravel-arca-sdk.wsfe.testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+        'laravel-arca-sdk.wsdl_url.wsfe.testing' => 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
     ]);
 
     $url = ArcaUrlResolver::getWebServiceUrl(WebService::WSFE);
@@ -57,10 +57,22 @@ it('can get wsaa service url', function () {
     // Set up configuration for wsaa service
     config([
         'laravel-arca-sdk.env' => 'testing',
-        'laravel-arca-sdk.wsaa.testing' => 'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL',
+        'laravel-arca-sdk.wsdl_url.wsaa.testing' => 'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL',
     ]);
 
     $url = ArcaUrlResolver::getWebServiceUrl('wsaa');
+
+    expect($url)->toBe('https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL');
+});
+
+it('can get wsaa service url with enum', function () {
+    // Set up configuration for wsaa service using enum
+    config([
+        'laravel-arca-sdk.env' => 'testing',
+        'laravel-arca-sdk.wsdl_url.wsaa.testing' => 'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL',
+    ]);
+
+    $url = ArcaUrlResolver::getWebServiceUrl(WebService::WSAA);
 
     expect($url)->toBe('https://wsaahomo.afip.gov.ar/ws/services/LoginCms?WSDL');
 });
@@ -69,7 +81,7 @@ it('throws exception when service url not configured', function () {
     // Clear any existing configuration
     config([
         'laravel-arca-sdk.env' => 'testing',
-        'laravel-arca-sdk.nonexistent.testing' => null,
+        'laravel-arca-sdk.wsdl_url.nonexistent.testing' => null,
     ]);
 
     expect(fn () => ArcaUrlResolver::getWebServiceUrl('nonexistent'))
@@ -80,8 +92,8 @@ it('throws exception when environment url not configured', function () {
     // Set up configuration for production but try to access testing
     config([
         'laravel-arca-sdk.env' => 'testing',
-        'laravel-arca-sdk.wsfe.production' => 'https://production.url',
-        'laravel-arca-sdk.wsfe.testing' => null,
+        'laravel-arca-sdk.wsdl_url.wsfe.production' => 'https://production.url',
+        'laravel-arca-sdk.wsdl_url.wsfe.testing' => null,
     ]);
 
     expect(fn () => ArcaUrlResolver::getWebServiceUrl('wsfe'))
@@ -92,8 +104,8 @@ it('handles different environments', function () {
     // Test production environment
     config([
         'laravel-arca-sdk.env' => 'production',
-        'laravel-arca-sdk.wsfe.production' => 'https://production.example.com',
-        'laravel-arca-sdk.wsfe.testing' => 'https://testing.example.com',
+        'laravel-arca-sdk.wsdl_url.wsfe.production' => 'https://production.example.com',
+        'laravel-arca-sdk.wsdl_url.wsfe.testing' => 'https://testing.example.com',
     ]);
 
     $productionUrl = ArcaUrlResolver::getWebServiceUrl('wsfe');
@@ -110,7 +122,7 @@ it('handles custom environment fallback', function () {
     // Test with custom environment value that should fallback to testing
     config([
         'laravel-arca-sdk.env' => 'development', // Non-production should fallback to testing
-        'laravel-arca-sdk.wsfe.testing' => 'https://testing.fallback.com',
+        'laravel-arca-sdk.wsdl_url.wsfe.testing' => 'https://testing.fallback.com',
     ]);
 
     $url = ArcaUrlResolver::getWebServiceUrl('wsfe');

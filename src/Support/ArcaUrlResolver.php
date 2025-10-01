@@ -12,7 +12,7 @@ class ArcaUrlResolver
     {
         $service = $service instanceof WebService ? $service->value : $service;
         $env = ArcaEnvironmentResolver::getEnv();
-        $url = config("laravel-arca-sdk.$service.$env");
+        $url = config("laravel-arca-sdk.wsdl_url.$service.$env");
 
         if (! $url) {
             throw new \InvalidArgumentException("No URL configured for service [$service] in environment [$env]");
