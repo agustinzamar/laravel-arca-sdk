@@ -2,8 +2,6 @@
 
 namespace AgustinZamar\LaravelArcaSdk\Clients;
 
-use const SOAP_1_2;
-
 use AgustinZamar\LaravelArcaSdk\Contracts\Request\CreateInvoiceRequest;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceCreatedResponse;
 use AgustinZamar\LaravelArcaSdk\Contracts\Response\InvoiceDetailResponse;
@@ -27,36 +25,25 @@ use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use SoapClient;
 use stdClass;
 
-class WsfeClient
+class WsfeClient extends ArcaClient
 {
-    protected WsaaClient $wsaaClient;
-
-    protected SoapClient $client;
-
     public function __construct(WsaaClient $wsaaClient, array $options = [])
     {
-        $this->wsaaClient = $wsaaClient;
-
-        $this->client = new SoapClient(config('laravel-arca-sdk.wsfe_wsdl_url'), array_merge([
-            'soap_version' => SOAP_1_2,
-            'trace' => 1,
-            'exceptions' => true,
-        ], $options));
+        parent::__construct($wsaaClient, WebService::WSFE, $options);
     }
 
     /**
      * Obtain all the recipient VAT conditions
      *
      * @return Collection<VatConditionResponse>
+     *
+     * @throws Exception
      */
     public function getRecipientVatConditions(): Collection
     {
-        $response = $this->client->FEParamGetCondicionIvaReceptor([
-            'Auth' => $this->getAuthParams(),
-        ]);
+        $response = $this->call('FEParamGetCondicionIvaReceptor');
 
         if (isset($response->FEParamGetCondicionIvaReceptorResult->Errors) && ! empty($response->FEParamGetCondicionIvaReceptorResult->Errors)) {
             throw new Exception('Error fetching identification types: '.json_encode($response->FEParamGetCondicionIvaReceptorResult->Errors));
@@ -76,9 +63,7 @@ class WsfeClient
      */
     public function getPointsOfSale(): stdClass
     {
-        $response = $this->client->FEParamGetPtosVenta([
-            'Auth' => $this->getAuthParams(),
-        ]);
+        $response = $this->call('FEParamGetPtosVenta');
 
         if ($response->FEParamGetPtosVentaResult->Errors && ! empty($response->FEParamGetPtosVentaResult->Errors)) {
             throw new Exception('Error fetching points of sale: '.json_encode($response->FEParamGetPtosVentaResult->Errors));
@@ -91,8 +76,7 @@ class WsfeClient
     {
         $invoiceType = $invoiceType instanceof InvoiceType ? $invoiceType->value : $invoiceType;
 
-        $response = $this->client->FECompUltimoAutorizado([
-            'Auth' => $this->getAuthParams(),
+        $response = $this->call('FECompUltimoAutorizado', [
             'PtoVta' => $pointOfSale,
             'CbteTipo' => $invoiceType,
         ]);
@@ -112,8 +96,7 @@ class WsfeClient
      */
     public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
     {
-        $request = array_merge(['Auth' => $this->getAuthParams()], $request->toArray());
-        $response = $this->client->FECAESolicitar($request);
+        $response = $this->call('FECAESolicitar', $request->toArray());
 
         if (isset($response->FECAESolicitarResult->Errors) && ! empty($response->FECAESolicitarResult->Errors)) {
             throw new Exception('Error creating invoice: '.json_encode($response->FECAESolicitarResult->Errors));
@@ -164,8 +147,7 @@ class WsfeClient
     {
         $invoiceType = $invoiceType instanceof InvoiceType ? $invoiceType : InvoiceType::from($invoiceType);
 
-        $response = $this->client->FECompConsultar([
-            'Auth' => $this->getAuthParams(),
+        $response = $this->call('FECompConsultar', [
             'FeCompConsReq' => [
                 'CbteTipo' => $invoiceType->value,
                 'CbteNro' => $invoiceNumber,
@@ -264,9 +246,7 @@ class WsfeClient
      */
     public function getOptionalTypes(): Collection
     {
-        $response = $this->client->FEParamGetTiposOpcional([
-            'Auth' => $this->getAuthParams(),
-        ]);
+        $response = $this->call('FEParamGetTiposOpcional');
 
         if (isset($response->FEParamGetTiposOpcionalResult->Errors) && ! empty($response->FEParamGetTiposOpcionalResult->Errors)) {
             throw new Exception('Error fetching optional types: '.json_encode($response->FEParamGetTiposOpcionalResult->Errors));
@@ -288,9 +268,7 @@ class WsfeClient
      */
     public function getInvoiceTypes(): Collection
     {
-        $response = $this->client->FEParamGetTiposCbte([
-            'Auth' => $this->getAuthParams(),
-        ]);
+        $response = $this->call('FEParamGetTiposCbte');
 
         if (isset($response->FEParamGetTiposCbteResult->Errors) && ! empty($response->FEParamGetTiposCbteResult->Errors)) {
             throw new Exception('Error fetching invoice types: '.json_encode($response->FEParamGetTiposCbteResult->Errors));
@@ -301,18 +279,5 @@ class WsfeClient
                 id: $invoiceType->Id,
                 name: $invoiceType->Desc,
             ));
-    }
-
-    /* ---------- [ Private Methods ] ---------- */
-
-    private function getAuthParams(): array
-    {
-        $authorizationTicket = $this->wsaaClient->getAuthorizationTicket(WebService::WSFE);
-
-        return [
-            'Token' => $authorizationTicket->token,
-            'Sign' => $authorizationTicket->sign,
-            'Cuit' => config('laravel-arca-sdk.cuit'),
-        ];
     }
 }
