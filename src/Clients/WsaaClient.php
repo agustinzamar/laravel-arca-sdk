@@ -4,6 +4,7 @@ namespace AgustinZamar\LaravelArcaSdk\Clients;
 
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
+use AgustinZamar\LaravelArcaSdk\Support\ArcaUrlResolver;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use SimpleXMLElement;
@@ -95,7 +96,7 @@ class WsaaClient
 
     protected function callLaravelArcaSdk(string $cms): string
     {
-        $client = new SoapClient(config('laravel-arca-sdk.wsaa_wsdl_url'), [
+        $client = new SoapClient(ArcaUrlResolver::getWebServiceUrl(WebService::WSAA), [
             'soap_version' => SOAP_1_2,
             'trace' => 1,
             'exceptions' => true,
