@@ -84,7 +84,7 @@ it('throws exception when service url not configured', function () {
         'arca-sdk.wsdl_url.nonexistent.testing' => null,
     ]);
 
-    expect(fn() => ArcaUrlResolver::getWebServiceUrl('nonexistent'))
+    expect(fn () => ArcaUrlResolver::getWebServiceUrl('nonexistent'))
         ->toThrow(InvalidArgumentException::class, 'No URL configured for service [nonexistent] in environment [testing]');
 });
 
@@ -96,7 +96,7 @@ it('throws exception when environment url not configured', function () {
         'arca-sdk.wsdl_url.wsfe.testing' => null,
     ]);
 
-    expect(fn() => ArcaUrlResolver::getWebServiceUrl('wsfe'))
+    expect(fn () => ArcaUrlResolver::getWebServiceUrl('wsfe'))
         ->toThrow(InvalidArgumentException::class, 'No URL configured for service [wsfe] in environment [testing]');
 });
 
