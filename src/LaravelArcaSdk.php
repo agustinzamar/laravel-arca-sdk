@@ -13,7 +13,8 @@ use AgustinZamar\LaravelArcaSdk\Contracts\Response\VatConditionResponse;
 use AgustinZamar\LaravelArcaSdk\Domain\AuthorizationTicket;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
-use Exception;
+use AgustinZamar\LaravelArcaSdk\Exceptions\ArcaException;
+use AgustinZamar\LaravelArcaSdk\Support\ArcaErrors;
 use Illuminate\Support\Collection;
 use stdClass;
 
@@ -40,9 +41,9 @@ class LaravelArcaSdk
     /**
      * Obtain all the points of sale which are enabled for Web Services usage
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getPointsOfSale(): stdClass
+    public function getPointsOfSale(): stdClass|ArcaErrors
     {
         return $this->wsfe->getPointsOfSale();
     }
@@ -50,11 +51,11 @@ class LaravelArcaSdk
     /**
      * Obtain all the recipient VAT conditions
      *
-     * @return Collection<VatConditionResponse>
+     * @return Collection<VatConditionResponse>|ArcaErrors
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getRecipientVatConditions(): Collection
+    public function getRecipientVatConditions(): Collection|ArcaErrors
     {
         return $this->wsfe->getRecipientVatConditions();
     }
@@ -63,9 +64,9 @@ class LaravelArcaSdk
      * Generate an invoice with the provided parameters
      *
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
+    public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse|ArcaErrors
     {
         return $this->wsfe->generateInvoice($request);
     }
@@ -73,9 +74,9 @@ class LaravelArcaSdk
     /**
      * Obtain the last invoice number for the specified point of sale and invoice type
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int
+    public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int|ArcaErrors
     {
         return $this->wsfe->getLastInvoiceNumber($pointOfSale, $invoiceType);
     }
@@ -83,11 +84,9 @@ class LaravelArcaSdk
     /**
      * Generate the next invoice based on the provided parameters
      *
-     * @param  InvoiceParams  $request
-     *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function generateNextInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
+    public function generateNextInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse|ArcaErrors
     {
         return $this->wsfe->generateNextInvoice($request);
     }
@@ -95,11 +94,11 @@ class LaravelArcaSdk
     /**
      * Retrieve the details of a specific invoice
      *
-     * @return InvoiceCreatedResponse
+     * @return InvoiceDetailResponse
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getInvoiceDetails(int $pointOfSale, InvoiceType|int $invoiceType, int $invoiceNumber): InvoiceDetailResponse
+    public function getInvoiceDetails(int $pointOfSale, InvoiceType|int $invoiceType, int $invoiceNumber): InvoiceDetailResponse|ArcaErrors
     {
         return $this->wsfe->getInvoiceDetails($pointOfSale, $invoiceType, $invoiceNumber);
     }
@@ -109,9 +108,9 @@ class LaravelArcaSdk
      *
      * @return Collection<OptionalTypesResponse>
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getOptionalTypes(): Collection
+    public function getOptionalTypes(): Collection|ArcaErrors
     {
         return $this->wsfe->getOptionalTypes();
     }
@@ -121,9 +120,9 @@ class LaravelArcaSdk
      *
      * @return Collection<InvoiceTypeResponse>
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getInvoiceTypes(): Collection
+    public function getInvoiceTypes(): Collection|ArcaErrors
     {
         return $this->wsfe->getInvoiceTypes();
     }

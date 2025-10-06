@@ -6,6 +6,7 @@ use const SOAP_1_2;
 
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
 use AgustinZamar\LaravelArcaSdk\Exceptions\ArcaException;
+use AgustinZamar\LaravelArcaSdk\Support\ArcaErrors;
 use AgustinZamar\LaravelArcaSdk\Support\ArcaUrlResolver;
 use SoapClient;
 use SoapFault;
@@ -76,5 +77,10 @@ abstract class ArcaClient
     protected function hasErrors(object $result): bool
     {
         return ! empty($result->Errors);
+    }
+
+    protected function handleErrorResponse(object $result): ArcaErrors
+    {
+        return ArcaErrors::fromResponse($result->Errors);
     }
 }

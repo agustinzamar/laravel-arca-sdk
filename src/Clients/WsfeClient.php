@@ -22,7 +22,8 @@ use AgustinZamar\LaravelArcaSdk\Enums\InvoiceCreatedResult;
 use AgustinZamar\LaravelArcaSdk\Enums\InvoiceType;
 use AgustinZamar\LaravelArcaSdk\Enums\RecipientVatCondition;
 use AgustinZamar\LaravelArcaSdk\Enums\WebService;
-use Exception;
+use AgustinZamar\LaravelArcaSdk\Exceptions\ArcaException;
+use AgustinZamar\LaravelArcaSdk\Support\ArcaErrors;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use stdClass;
@@ -37,16 +38,16 @@ class WsfeClient extends ArcaClient
     /**
      * Obtain all the recipient VAT conditions
      *
-     * @return Collection<VatConditionResponse>
+     * @return Collection<RecipientVatCondition>|ArcaErrors
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getRecipientVatConditions(): Collection
+    public function getRecipientVatConditions(): ArcaErrors|Collection
     {
         $response = $this->call('FEParamGetCondicionIvaReceptor');
 
-        if (isset($response->FEParamGetCondicionIvaReceptorResult->Errors) && ! empty($response->FEParamGetCondicionIvaReceptorResult->Errors)) {
-            throw new Exception('Error fetching identification types: '.json_encode($response->FEParamGetCondicionIvaReceptorResult->Errors));
+        if ($this->hasErrors($response->FEParamGetCondicionIvaReceptorResult)) {
+            return $this->handleErrorResponse($response->FEParamGetCondicionIvaReceptorResult);
         }
 
         return collect($response->FEParamGetCondicionIvaReceptorResult->ResultGet->CondicionIvaReceptor)
@@ -59,20 +60,23 @@ class WsfeClient extends ArcaClient
     /**
      * Collection of all the points of sale which are enabled for Web Services usage
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function getPointsOfSale(): stdClass
+    public function getPointsOfSale(): stdClass|ArcaErrors
     {
         $response = $this->call('FEParamGetPtosVenta');
 
-        if ($response->FEParamGetPtosVentaResult->Errors && ! empty($response->FEParamGetPtosVentaResult->Errors)) {
-            throw new Exception('Error fetching points of sale: '.json_encode($response->FEParamGetPtosVentaResult->Errors));
+        if ($this->hasErrors($response->FEParamGetPtosVentaResult)) {
+            return $this->handleErrorResponse($response->FEParamGetPtosVentaResult);
         }
 
         return $response->FEParamGetPtosVentaResult->ResultGet;
     }
 
-    public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int
+    /**
+     * @throws ArcaException
+     */
+    public function getLastInvoiceNumber(int $pointOfSale, InvoiceType|int $invoiceType): int|ArcaErrors
     {
         $invoiceType = $invoiceType instanceof InvoiceType ? $invoiceType->value : $invoiceType;
 
@@ -81,8 +85,8 @@ class WsfeClient extends ArcaClient
             'CbteTipo' => $invoiceType,
         ]);
 
-        if (isset($response->FECompUltimoAutorizadoResult->Errors) && ! empty($response->FECompUltimoAutorizadoResult->Errors)) {
-            throw new Exception('Error fetching last invoice number: '.json_encode($response->FECompUltimoAutorizadoResult->Errors));
+        if ($this->hasErrors($response->FECompUltimoAutorizadoResult)) {
+            $this->handleErrorResponse($response->FECompUltimoAutorizadoResult);
         }
 
         return (int) $response->FECompUltimoAutorizadoResult->CbteNro;
@@ -92,23 +96,20 @@ class WsfeClient extends ArcaClient
      * Create an invoice with the given parameters
      *
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
+    public function generateInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse|ArcaErrors
     {
         $response = $this->call('FECAESolicitar', $request->toArray());
 
-        if (isset($response->FECAESolicitarResult->Errors) && ! empty($response->FECAESolicitarResult->Errors)) {
-            throw new Exception('Error creating invoice: '.json_encode($response->FECAESolicitarResult->Errors));
+        if ($this->hasErrors($response->FECAESolicitarResult)) {
+            return $this->handleErrorResponse($response->FECAESolicitarResult);
         }
 
         $invoiceData = $response->FECAESolicitarResult->FeDetResp->FECAEDetResponse;
 
-        if ($invoiceData->Resultado !== InvoiceCreatedResult::APPROVED->value) {
-            throw new Exception('Invoice not approved: '.json_encode($invoiceData->Observaciones));
-        }
-
         return new InvoiceCreatedResponse(
+            result: InvoiceCreatedResult::from($invoiceData->Resultado),
             concept: InvoiceConcept::from($invoiceData->Concepto),
             identification: new Identification(
                 type: IdentificationType::from($invoiceData->DocTipo),
@@ -118,7 +119,7 @@ class WsfeClient extends ArcaClient
             invoiceTo: $invoiceData->CbteHasta,
             invoiceDate: Carbon::createFromFormat('Ymd', $invoiceData->CbteFch),
             cae: $invoiceData->CAE,
-            caeExpirationDate: Carbon::createFromFormat('Ymd', $invoiceData->CAEFchVto)
+            caeExpirationDate: $invoiceData->CAEFchVto ? Carbon::createFromFormat('Ymd', $invoiceData->CAEFchVto) : null
         );
     }
 
@@ -126,9 +127,9 @@ class WsfeClient extends ArcaClient
      * Generate the next invoice
      *
      *
-     * @throws Exception
+     * @throws ArcaException
      */
-    public function generateNextInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse
+    public function generateNextInvoice(CreateInvoiceRequest $request): InvoiceCreatedResponse|ArcaErrors
     {
         $nextInvoiceNumber = $this->getLastInvoiceNumber($request->pointOfSale, $request->invoiceType) + 1;
 
@@ -141,7 +142,7 @@ class WsfeClient extends ArcaClient
      * Get the details of a specific invoice
      *
      *
-     * @throws Exception
+     * @throws ArcaException
      */
     public function getInvoiceDetails(int $pointOfSale, InvoiceType|int $invoiceType, int $invoiceNumber): InvoiceDetailResponse
     {
@@ -155,8 +156,8 @@ class WsfeClient extends ArcaClient
             ],
         ]);
 
-        if (isset($response->FECompConsultarResult->Errors) && ! empty($response->FECompConsultarResult->Errors)) {
-            throw new Exception('Error fetching invoice details: '.json_encode($response->FECompConsultarResult->Errors));
+        if ($this->hasErrors($response->FECompConsultarResult)) {
+            $this->handleErrorResponse($response->FECompConsultarResult);
         }
 
         return new InvoiceDetailResponse(
@@ -242,14 +243,14 @@ class WsfeClient extends ArcaClient
      *
      * @return Collection<OptionalTypesResponse>
      *
-     * @throws Exception
+     * @throws ArcaException
      */
     public function getOptionalTypes(): Collection
     {
         $response = $this->call('FEParamGetTiposOpcional');
 
-        if (isset($response->FEParamGetTiposOpcionalResult->Errors) && ! empty($response->FEParamGetTiposOpcionalResult->Errors)) {
-            throw new Exception('Error fetching optional types: '.json_encode($response->FEParamGetTiposOpcionalResult->Errors));
+        if ($this->hasErrors($response->FEParamGetTiposOpcionalResult)) {
+            $this->handleErrorResponse($response->FEParamGetTiposOpcionalResult);
         }
 
         return (new Collection($response->FEParamGetTiposOpcionalResult->ResultGet->OpcionalTipo))
@@ -264,14 +265,14 @@ class WsfeClient extends ArcaClient
      *
      * @return Collection<InvoiceTypeResponse>
      *
-     * @throws Exception
+     * @throws ArcaException
      */
     public function getInvoiceTypes(): Collection
     {
         $response = $this->call('FEParamGetTiposCbte');
 
-        if (isset($response->FEParamGetTiposCbteResult->Errors) && ! empty($response->FEParamGetTiposCbteResult->Errors)) {
-            throw new Exception('Error fetching invoice types: '.json_encode($response->FEParamGetTiposCbteResult->Errors));
+        if ($this->hasErrors($response->FEParamGetTiposCbteResult)) {
+            $this->handleErrorResponse($response->FEParamGetTiposCbteResult);
         }
 
         return (new Collection($response->FEParamGetTiposCbteResult->ResultGet->CbteTipo))
