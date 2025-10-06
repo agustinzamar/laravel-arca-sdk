@@ -70,7 +70,7 @@ abstract class ArcaClient
         return [
             'Token' => $authorizationTicket->token,
             'Sign' => $authorizationTicket->sign,
-            'Cuit' => config('laravel-arca-sdk.cuit'),
+            'Cuit' => config('arca-sdk.cuit'),
         ];
     }
 

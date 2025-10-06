@@ -8,6 +8,6 @@ class ArcaEnvironmentResolver
 {
     public static function getEnv(): string
     {
-        return config('laravel-arca-sdk.env') === 'production' ? 'production' : 'testing';
+        return config('arca-sdk.env') === 'production' ? 'production' : 'testing';
     }
 }

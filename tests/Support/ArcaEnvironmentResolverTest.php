@@ -5,7 +5,7 @@ declare(strict_types=1);
 use AgustinZamar\LaravelArcaSdk\Support\ArcaEnvironmentResolver;
 
 it('returns production when config is set to production', function () {
-    config(['laravel-arca-sdk.env' => 'production']);
+    config(['arca-sdk.env' => 'production']);
 
     $env = ArcaEnvironmentResolver::getEnv();
 
@@ -13,7 +13,7 @@ it('returns production when config is set to production', function () {
 });
 
 it('returns testing when config is set to testing', function () {
-    config(['laravel-arca-sdk.env' => 'testing']);
+    config(['arca-sdk.env' => 'testing']);
 
     $env = ArcaEnvironmentResolver::getEnv();
 
@@ -21,7 +21,7 @@ it('returns testing when config is set to testing', function () {
 });
 
 it('returns testing when config is null', function () {
-    config(['laravel-arca-sdk.env' => null]);
+    config(['arca-sdk.env' => null]);
 
     $env = ArcaEnvironmentResolver::getEnv();
 
@@ -29,7 +29,7 @@ it('returns testing when config is null', function () {
 });
 
 it('returns testing when config is empty string', function () {
-    config(['laravel-arca-sdk.env' => '']);
+    config(['arca-sdk.env' => '']);
 
     $env = ArcaEnvironmentResolver::getEnv();
 
@@ -54,7 +54,7 @@ it('returns testing for any non-production value', function () {
     ];
 
     foreach ($nonProductionValues as $value) {
-        config(['laravel-arca-sdk.env' => $value]);
+        config(['arca-sdk.env' => $value]);
 
         $env = ArcaEnvironmentResolver::getEnv();
 
@@ -72,7 +72,7 @@ it('is case sensitive for production value', function () {
     ];
 
     foreach ($caseVariants as $variant) {
-        config(['laravel-arca-sdk.env' => $variant]);
+        config(['arca-sdk.env' => $variant]);
 
         $env = ArcaEnvironmentResolver::getEnv();
 
@@ -83,25 +83,25 @@ it('is case sensitive for production value', function () {
 
 it('handles boolean values correctly', function () {
     // Test boolean true
-    config(['laravel-arca-sdk.env' => true]);
+    config(['arca-sdk.env' => true]);
     expect(ArcaEnvironmentResolver::getEnv())->toBe('testing');
 
     // Test boolean false
-    config(['laravel-arca-sdk.env' => false]);
+    config(['arca-sdk.env' => false]);
     expect(ArcaEnvironmentResolver::getEnv())->toBe('testing');
 });
 
 it('handles numeric values correctly', function () {
     // Test integer
-    config(['laravel-arca-sdk.env' => 1]);
+    config(['arca-sdk.env' => 1]);
     expect(ArcaEnvironmentResolver::getEnv())->toBe('testing');
 
     // Test zero
-    config(['laravel-arca-sdk.env' => 0]);
+    config(['arca-sdk.env' => 0]);
     expect(ArcaEnvironmentResolver::getEnv())->toBe('testing');
 
     // Test float
-    config(['laravel-arca-sdk.env' => 1.5]);
+    config(['arca-sdk.env' => 1.5]);
     expect(ArcaEnvironmentResolver::getEnv())->toBe('testing');
 });
 
@@ -116,11 +116,11 @@ it('uses default config value when not explicitly set', function () {
 });
 
 it('works with exact production string match', function () {
-    config(['laravel-arca-sdk.env' => 'production']);
+    config(['arca-sdk.env' => 'production']);
 
     expect(ArcaEnvironmentResolver::getEnv())->toBe('production');
 
     // Verify it's exactly matching the string
-    config(['laravel-arca-sdk.env' => 'productioN']);
+    config(['arca-sdk.env' => 'productioN']);
     expect(ArcaEnvironmentResolver::getEnv())->toBe('testing');
 });

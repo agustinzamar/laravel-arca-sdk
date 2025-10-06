@@ -15,7 +15,7 @@ class LaravelArcaSdkServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('laravel-arca-sdk')
+            ->name('arca-sdk')
             ->hasConfigFile()
             ->hasViews();
     }
